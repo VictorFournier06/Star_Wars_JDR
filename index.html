@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DATAPAD — Création de personnage</title>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+
+<body>
+  <!-- Background Effects -->
+  <div class="bg-img"></div>
+  <div class="noise"></div>
+  <div class="scan"></div>
+  <div class="flicker" id="flicker"></div>
+  <div class="refresh" id="refresh"></div>
+
+  <div class="wrap">
+    <!-- Header / HUD -->
+    <header class="topbar" aria-label="Datapad HUD">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="title">
+          <div class="kicker">Datapad / Création</div>
+          <h1>Création de personnage</h1>
+        </div>
+      </div>
+
+      <div class="hud">
+        <span class="stamp">Dossier joueur</span>
+        <div class="meter" title="Points restants (≥ 0)">
+          <span class="label">POINTS</span>
+          <span class="value" id="totalVal">0</span>
+          <span class="label">RESTE</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="shell" aria-label="Datapad">
+      <!-- Navigation -->
+      <nav class="nav" aria-label="Navigation">
+        <div class="tabs" id="tabs"></div>
+        <div class="pager">
+          <button class="btn" id="prevBtn">← Préc.</button>
+          <button class="btn" id="nextBtn">Suiv. →</button>
+          <button class="btn warn" id="resetBtn" title="Effacer la sélection">Réinitialiser</button>
+        </div>
+      </nav>
+
+      <!-- Page 1: Espèce -->
+      <section class="page" data-page="0">
+        <div class="headline">
+          <h2>1 — Espèce</h2>
+          <span class="chip">Choisis 1</span>
+        </div>
+        <p class="hint">Tu choisis un profil culturel et physiologique. Les détails mécaniques apparaissent dans le dossier final.</p>
+        <div class="panel" id="speciesList"></div>
+      </section>
+
+      <!-- Page 2: Profession -->
+      <section class="page" data-page="1">
+        <div class="headline">
+          <h2>2 — Profession</h2>
+          <span class="chip amber">Points</span>
+        </div>
+        <p class="hint">Clique une carte pour choisir. Le chiffre indique l'impact sur tes <b>points restants</b>.</p>
+        <div class="panel" id="profList"></div>
+      </section>
+
+      <!-- Page 3: Traits -->
+      <section class="page" data-page="2">
+        <div class="headline">
+          <h2>3 — Traits</h2>
+          <span class="chip amber">Points</span>
+        </div>
+        <p class="hint">Clique pour sélectionner/désélectionner. Ton total de <b>points restants</b> doit rester <b>≥ 0</b>.</p>
+        <div class="panel">
+          <div class="field">
+            <label for="traitSearch">Rechercher</label>
+            <input id="traitSearch" type="text" placeholder="Mot-clé (pilotage, réseau, guerre…)" />
+          </div>
+          <div class="traits" id="traitList"></div>
+        </div>
+      </section>
+
+      <!-- Page 4: Identité -->
+      <section class="page" data-page="3">
+        <div class="headline">
+          <h2>4 — Identité</h2>
+          <span class="chip amber">Dossier</span>
+        </div>
+        <p class="hint">Tu verrouilles l'essentiel. Pas de roman : une identité jouable en 30 secondes.</p>
+        <div class="grid2">
+          <div class="panel">
+            <div class="field">
+              <label for="codename">Nom de code</label>
+              <input id="codename" type="text" placeholder="Ex : VELIN / K-17 / SABLE" />
+            </div>
+            <div class="field">
+              <label for="concept">Concept (1 phrase)</label>
+              <input id="concept" type="text" placeholder="Ex : technicien de flotte affecté aux missions impossibles" />
+            </div>
+            <div class="field">
+              <label for="notes">Notes (optionnel)</label>
+              <textarea id="notes" placeholder="Accents, attitude, objectifs, dettes, promesses…"></textarea>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="field">
+              <label for="aff">Camp</label>
+              <select id="aff">
+                <option value="">— Choisis —</option>
+                <option>République</option>
+                <option>Empire Sith</option>
+                <option>Indépendant</option>
+                <option>Double agent</option>
+              </select>
+            </div>
+            <p class="hint" style="margin-top:10px">Tu peux changer de camp en campagne. Ici, c'est ton point de départ.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 5: Dossier final -->
+      <section class="page" data-page="4" id="finalPage">
+        <div class="headline">
+          <h2>5 — Dossier final</h2>
+          <span class="chip" id="statusChip">En cours</span>
+        </div>
+        <p class="hint">Cette page révèle les informations mécaniques. Si tes <b>points restants ≥ 0</b>, ton personnage est jouable.</p>
+
+        <div class="summary" id="finalCapture">
+          <!-- Summary Panel -->
+          <div class="panel">
+            <div class="headline" style="margin-bottom:6px">
+              <h2 style="font-size:13px">Résumé</h2>
+              <span class="chip" id="totalChip">POINTS 0</span>
+            </div>
+            <ul class="list" id="summary"></ul>
+          </div>
+
+          <!-- Stats Panel -->
+          <div class="panel">
+            <div class="headline" style="margin-bottom:6px">
+              <h2 style="font-size:13px">Caractéristiques</h2>
+              <span class="chip">édition</span>
+            </div>
+            <p class="hint" style="margin-top:0">Répartition libre pour l'instant. Le MJ peut imposer un barème.</p>
+            <div class="grid2" style="margin-top:12px">
+              <div class="field"><label>FOR</label><input type="number" id="FOR" value="0" /></div>
+              <div class="field"><label>DEX</label><input type="number" id="DEX" value="0" /></div>
+              <div class="field"><label>CON</label><input type="number" id="CON" value="0" /></div>
+              <div class="field"><label>INT</label><input type="number" id="INT" value="0" /></div>
+              <div class="field"><label>SAG</label><input type="number" id="SAG" value="0" /></div>
+              <div class="field"><label>CHA</label><input type="number" id="CHA" value="0" /></div>
+            </div>
+          </div>
+
+          <!-- Skills Panel -->
+          <div class="panel">
+            <div class="headline" style="margin-bottom:6px">
+              <h2 style="font-size:13px">Compétences</h2>
+              <span class="chip">révélé</span>
+            </div>
+            <p class="hint" style="margin-top:0">Compétences générales (espèce + profession).</p>
+            <ul class="list" id="skillsList"></ul>
+          </div>
+
+          <!-- Export Panel -->
+          <div class="panel">
+            <div class="headline" style="margin-bottom:6px">
+              <h2 style="font-size:13px">Exporter</h2>
+              <span class="chip">image</span>
+            </div>
+            <p class="hint" style="margin-top:0">Télécharge une image PNG du dossier final.</p>
+            <div class="footer-actions">
+              <button class="btn" id="saveBtn">Télécharger l'image</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="./js/data.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
