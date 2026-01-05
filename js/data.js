@@ -110,20 +110,6 @@ const SPECIES = [
       traits: ["Natural Weapons", "Heightened Awareness"]
     }
   },
-  {
-    id: 'sith_pureblood',
-    name: "Sith (Sang-pur)",
-    points: -4,
-    blurb: "Descendant de l'ancienne espèce Sith. Le Côté Obscur coule dans tes veines.",
-    tags: ["Force", "obscur"],
-    image: "sith_pureblood.png",
-    hidden: {
-      abilityMods: "+2 CHA, -2 SAG",
-      languages: ["Basic", "Sith"],
-      skills: ["Use the Force", "Persuasion"],
-      traits: ["Dark Side Affinity", "Force Sensitivity"]
-    }
-  },
 
   // --- ESPÈCES TECHNIQUES ---
   {
@@ -152,20 +138,6 @@ const SPECIES = [
       languages: ["Basic", "Sullustese"],
       skills: ["Pilotage", "Connaissance (galactique)"],
       traits: ["Darkvision", "Expert Pilot"]
-    }
-  },
-  {
-    id: 'droide',
-    name: "Droïde",
-    points: +4,
-    blurb: "Machine pensante. Tu es une fonction... avec une volonté émergente.",
-    tags: ["tech", "logique"],
-    image: "droide.png",
-    hidden: {
-      abilityMods: "Variable selon modèle",
-      languages: ["Basic", "Binary"],
-      skills: ["Informatique", "Mécanique"],
-      traits: ["Droid Systems", "Behavioral Inhibitor"]
     }
   },
 
@@ -343,34 +315,6 @@ const SPECIES = [
     }
   },
   {
-    id: 'echani',
-    name: "Echani",
-    points: -2,
-    blurb: "Guerrier artiste. Le combat est ton langage, chaque mouvement une conversation.",
-    tags: ["combat", "discipline"],
-    image: "echani.png",
-    hidden: {
-      abilityMods: "+2 DEX, -2 CON",
-      languages: ["Basic", "Echani"],
-      skills: ["Acrobaties", "Perception"],
-      traits: ["Martial Arts I", "Combat Reading"]
-    }
-  },
-  {
-    id: 'mandalorian_human',
-    name: "Mandalorien",
-    points: -4,
-    blurb: "Le sang ne fait pas le Mandalorien — la culture, si. Tu es né pour la guerre.",
-    tags: ["guerrier", "armure"],
-    image: "mandalorian.png",
-    hidden: {
-      abilityMods: "Aucun",
-      languages: ["Basic", "Mando'a"],
-      skills: ["Tir", "Endurance"],
-      traits: ["Armor Proficiency (Light)", "Weapon Proficiency (Rifles)"]
-    }
-  },
-  {
     id: 'weequay',
     name: "Weequay",
     points: +2,
@@ -413,34 +357,6 @@ const SPECIES = [
     }
   },
   {
-    id: 'gran',
-    name: "Gran",
-    points: 0,
-    blurb: "Sociable et émotif. Tes trois yeux voient tout, ton cœur ressent trop.",
-    tags: ["social", "perception"],
-    image: "gran.png",
-    hidden: {
-      abilityMods: "-2 SAG",
-      languages: ["Basic", "Gran"],
-      skills: ["Perception", "Persuasion"],
-      traits: ["Heightened Awareness", "Gregarious"]
-    }
-  },
-  {
-    id: 'bith',
-    name: "Bith",
-    points: 0,
-    blurb: "Intellectuel sensible. Tes sens sont affûtés, ton corps moins.",
-    tags: ["intellectuel", "artiste"],
-    image: "bith.png",
-    hidden: {
-      abilityMods: "+2 INT, +2 SAG, -2 CON, -2 FOR",
-      languages: ["Basic", "Bith"],
-      skills: ["Perception", "Connaissance (art)"],
-      traits: ["Keen Senses", "Sensitive"]
-    }
-  },
-  {
     id: 'selkath',
     name: "Selkath",
     points: 0,
@@ -468,18 +384,218 @@ const SPECIES = [
       traits: ["Rage", "Dark Side Affinity"]
     }
   },
+
+  // --- ESPÈCES ADDITIONNELLES (avec images disponibles) ---
+  {
+    id: 'anzat',
+    name: "Anzat",
+    points: -4,
+    blurb: "Prédateur ancien qui se nourrit de la 'soupe' — l'essence vitale des êtres vivants.",
+    tags: ["prédateur", "furtif"],
+    image: "anzat.webp",
+    hidden: {
+      abilityMods: "+2 FOR, +2 DEX, -2 CHA",
+      languages: ["Basic", "Anzati"],
+      skills: ["Discrétion", "Perception"],
+      traits: ["Telepathy", "Long-lived"]
+    }
+  },
+  {
+    id: 'cerean',
+    name: "Cerean",
+    points: 0,
+    blurb: "Penseur binaire avec deux cerveaux. Tu analyses les problèmes sous tous les angles.",
+    tags: ["intellectuel", "sagesse"],
+    image: "cerean.webp",
+    hidden: {
+      abilityMods: "+2 INT, +2 SAG, -2 DEX",
+      languages: ["Basic", "Cerean"],
+      skills: ["Connaissance (tout)", "Perception"],
+      traits: ["Binary Processing", "Intuitive Initiative"]
+    }
+  },
+  {
+    id: 'ewok',
+    name: "Ewok",
+    points: +2,
+    blurb: "Petit mais rusé. Tu survis grâce à l'ingéniosité et la communauté.",
+    tags: ["primitif", "survie"],
+    image: "ewok.png",
+    hidden: {
+      abilityMods: "+2 DEX, -2 FOR",
+      languages: ["Ewokese"],
+      skills: ["Survie", "Discrétion"],
+      traits: ["Primitive", "Scent"]
+    }
+  },
+  {
+    id: 'gand',
+    name: "Gand",
+    points: 0,
+    blurb: "Traqueur mystique. Tu dois gagner ton nom par tes actes.",
+    tags: ["chasseur", "mystique"],
+    image: "gand.jpg",
+    hidden: {
+      abilityMods: "-2 CHA",
+      languages: ["Basic", "Gand"],
+      skills: ["Survie", "Perception"],
+      traits: ["Ammonia Breather", "Findsman Ceremonies"]
+    }
+  },
+  {
+    id: 'gungan',
+    name: "Gungan",
+    points: +2,
+    blurb: "Amphibien de Naboo. Maladroit sur terre, gracieux dans l'eau.",
+    tags: ["aquatique", "résistant"],
+    image: "gungan.webp",
+    hidden: {
+      abilityMods: "+2 CON, -2 INT, -2 SAG",
+      languages: ["Basic", "Gungan"],
+      skills: ["Natation", "Endurance"],
+      traits: ["Expert Swimmer", "Heightened Awareness"]
+    }
+  },
+  {
+    id: 'hutt',
+    name: "Hutt",
+    points: -6,
+    blurb: "Seigneur du crime massif. Le pouvoir et la manipulation sont ton art.",
+    tags: ["crime", "manipulation"],
+    image: "hutt.png",
+    hidden: {
+      abilityMods: "+4 CON, -4 DEX",
+      languages: ["Basic", "Huttese"],
+      skills: ["Persuasion", "Tromperie"],
+      traits: ["Force Resistance", "Influential"]
+    }
+  },
+  {
+    id: 'iktotchi',
+    name: "Iktotchi",
+    points: -2,
+    blurb: "Télépathe cornu. Tes visions du futur te guident.",
+    tags: ["prescience", "Force"],
+    image: "iktotchi.webp",
+    hidden: {
+      abilityMods: "+2 SAG, -2 CHA",
+      languages: ["Basic", "Iktotchese"],
+      skills: ["Perception", "Use the Force"],
+      traits: ["Precognition", "Telepathy"]
+    }
+  },
+  {
+    id: 'jawa',
+    name: "Jawa",
+    points: +4,
+    blurb: "Petit récupérateur du désert. La technologie abandonnée est ton trésor.",
+    tags: ["tech", "commerce"],
+    image: "jawa.webp",
+    hidden: {
+      abilityMods: "+2 DEX, -2 FOR, -2 CHA",
+      languages: ["Jawaese", "Basic (compris)"],
+      skills: ["Mécanique", "Tromperie"],
+      traits: ["Scavenger", "Darkvision"]
+    }
+  },
+  {
+    id: 'kaleesh',
+    name: "Kaleesh",
+    points: -2,
+    blurb: "Guerrier masqué. L'honneur au combat définit ton existence.",
+    tags: ["guerrier", "honneur"],
+    image: "kaleesh.webp",
+    hidden: {
+      abilityMods: "+2 DEX, -2 INT",
+      languages: ["Basic", "Kaleesh"],
+      skills: ["Perception", "Survie"],
+      traits: ["Darkvision", "Intimidating"]
+    }
+  },
+  {
+    id: 'mon_calamari',
+    name: "Mon Calamari",
+    points: 0,
+    blurb: "Stratège aquatique. Tu construis des vaisseaux et planifies des victoires.",
+    tags: ["tactique", "aquatique"],
+    image: "mon_calamari.webp",
+    hidden: {
+      abilityMods: "+2 INT, -2 CON",
+      languages: ["Basic", "Mon Calamarian"],
+      skills: ["Connaissance (tactique)", "Mécanique"],
+      traits: ["Expert Swimmer", "Low-Light Vision"]
+    }
+  },
+  {
+    id: 'nikto',
+    name: "Nikto",
+    points: +2,
+    blurb: "Serviteur des Hutts depuis des millénaires. Résistant et adaptable.",
+    tags: ["résistant", "serviteur"],
+    image: "nikto.jpg",
+    hidden: {
+      abilityMods: "-2 INT, -2 CHA",
+      languages: ["Basic", "Huttese", "Nikto"],
+      skills: ["Survie", "Intimidation"],
+      traits: ["Natural Armor", "Primitive"]
+    }
+  },
+  {
+    id: 'quarren',
+    name: "Quarren",
+    points: 0,
+    blurb: "Habitant des profondeurs de Mon Cala. Pragmatique et méfiant.",
+    tags: ["aquatique", "pragmatique"],
+    image: "quarren.png",
+    hidden: {
+      abilityMods: "+2 CON, -2 SAG, -2 CHA",
+      languages: ["Basic", "Quarrenese"],
+      skills: ["Natation", "Perception"],
+      traits: ["Expert Swimmer", "Darkvision", "Low-Light Vision"]
+    }
+  },
+
+  // --- ESPÈCES ADDITIONNELLES ---
+  {
+    id: 'gran',
+    name: "Gran",
+    points: +1,
+    blurb: "Pacifiste aux trois yeux. Communauté et harmonie avant tout.",
+    tags: ["pacifiste", "communauté", "perception"],
+    image: "gran.webp",
+    hidden: {
+      abilityMods: "+2 SAG, -2 FOR",
+      languages: ["Basic", "Gran"],
+      skills: ["Diplomatie", "Perception"],
+      traits: ["Three-Eyed Vision", "Peaceful Nature"]
+    }
+  },
+  {
+    id: 'bith',
+    name: "Bith",
+    points: +1,
+    blurb: "Musicien et scientifique. Sens aiguisés et intellect supérieur.",
+    tags: ["intelligent", "musique", "science"],
+    image: "bith.webp",
+    hidden: {
+      abilityMods: "+2 INT, -2 FOR",
+      languages: ["Basic", "Bith"],
+      skills: ["Connaissance", "Arts"],
+      traits: ["Enhanced Senses", "Scientific Mind"]
+    }
+  },
   {
     id: 'rakata',
     name: "Rakata",
-    points: -6,
-    blurb: "Vestige de l'Empire Infini. Ton peuple a dominé la galaxie — il y a vingt mille ans.",
-    tags: ["ancien", "Force"],
-    image: "rakata.png",
+    points: -3,
+    blurb: "Ancien conquérant de la galaxie. Puissance et cruauté légendaires.",
+    tags: ["ancien", "Force", "conquérant"],
+    image: "rakata.webp",
     hidden: {
-      abilityMods: "+2 INT, -2 CHA",
+      abilityMods: "+2 INT, +2 CHA, -2 SAG",
       languages: ["Basic", "Rakata"],
-      skills: ["Use the Force", "Connaissance (technologie)"],
-      traits: ["Force Sensitivity", "Ancient Knowledge"]
+      skills: ["Force Use", "Intimidation"],
+      traits: ["Force Sensitivity", "Ancient Knowledge", "Arrogant"]
     }
   },
 ];
