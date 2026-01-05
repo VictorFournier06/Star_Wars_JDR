@@ -15,11 +15,68 @@ const state = {
   selectedTraits: new Set(),
 };
 
+// Species descriptions loaded from JSON
+let speciesDescriptions = {};
+
+// Load species descriptions
+fetch('./js/species_descriptions.json')
+  .then(res => res.json())
+  .then(data => { speciesDescriptions = data; })
+  .catch(err => console.warn('Could not load species descriptions:', err));
+
 // =============================================================================
 // UTILITY FUNCTIONS
 // =============================================================================
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+// Image extensions to try (in order of preference)
+const IMAGE_EXTENSIONS = ['png', 'webp', 'jpg', 'jpeg', 'gif'];
+const FALLBACK_SVG = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23111%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23555%22 font-size=%2240%22>?</text></svg>";
+
+/**
+ * Get the image path for a species, trying multiple extensions
+ */
+function getSpeciesImageSrc(speciesId) {
+  // Use species ID to construct base path
+  return `assets/species/${speciesId}`;
+}
+
+/**
+ * Create an image element that tries multiple extensions
+ */
+function createSpeciesImage(speciesId, altText) {
+  const basePath = getSpeciesImageSrc(speciesId);
+  return { basePath, fallbackSvg: FALLBACK_SVG };
+}
+
+/**
+ * Try next image extension when current one fails to load
+ */
+function tryNextSpeciesImage(img) {
+  const speciesId = img.dataset.speciesId;
+  const currentSrc = img.src;
+  const basePath = `assets/species/${speciesId}`;
+  
+  // Find current extension index
+  let currentExtIndex = -1;
+  for (let i = 0; i < IMAGE_EXTENSIONS.length; i++) {
+    if (currentSrc.endsWith(`.${IMAGE_EXTENSIONS[i]}`)) {
+      currentExtIndex = i;
+      break;
+    }
+  }
+  
+  // Try next extension
+  const nextIndex = currentExtIndex + 1;
+  if (nextIndex < IMAGE_EXTENSIONS.length) {
+    img.src = `${basePath}.${IMAGE_EXTENSIONS[nextIndex]}`;
+  } else {
+    // All extensions exhausted, use fallback
+    img.onerror = null; // Prevent infinite loop
+    img.src = FALLBACK_SVG;
+  }
+}
 
 function speciesChosen() {
   return SPECIES.find(s => s.id === state.speciesId) || null;
@@ -55,10 +112,82 @@ function disabledTraitsSet(selectedIds) {
 }
 
 /**
- * Calculate total points remaining
+ * Parse species ability modifiers from string like "+2 FOR, -2 DEX"
+ * Returns object like { FOR: 2, DEX: -2 }
  */
+function parseAbilityMods(modString) {
+  const mods = { FOR: 0, DEX: 0, CON: 0, INT: 0, SAG: 0, CHA: 0 };
+  if (!modString || modString === 'Aucun' || modString === 'Variable selon modèle') {
+    return mods;
+  }
+  
+  // Match patterns like "+2 FOR" or "-2 DEX"
+  const regex = /([+-]?\d+)\s*(FOR|DEX|CON|INT|SAG|CHA)/gi;
+  let match;
+  while ((match = regex.exec(modString)) !== null) {
+    const value = parseInt(match[1], 10);
+    const stat = match[2].toUpperCase();
+    if (mods.hasOwnProperty(stat)) {
+      mods[stat] = value;
+    }
+  }
+  return mods;
+}
+
+/**
+ * Get computed stats (base 10 + species + profession + traits modifiers)
+ */
+function getComputedStats() {
+  const base = 10;
+  const s = speciesChosen();
+  const p = profession();
+  
+  // Initialize mods object
+  const mods = { FOR: 0, DEX: 0, CON: 0, INT: 0, SAG: 0, CHA: 0 };
+  
+  // Add species modifiers
+  if (s?.hidden?.abilityMods) {
+    const speciesMods = parseAbilityMods(s.hidden.abilityMods);
+    Object.keys(speciesMods).forEach(stat => {
+      mods[stat] += speciesMods[stat];
+    });
+  }
+  
+  // Add profession modifiers (if any)
+  if (p?.hidden?.abilityMods) {
+    const profMods = parseAbilityMods(p.hidden.abilityMods);
+    Object.keys(profMods).forEach(stat => {
+      mods[stat] += profMods[stat];
+    });
+  }
+  
+  // Add trait modifiers
+  state.selectedTraits.forEach(traitId => {
+    const trait = traitById(traitId);
+    if (trait?.hidden?.abilityMods) {
+      const traitMods = parseAbilityMods(trait.hidden.abilityMods);
+      Object.keys(traitMods).forEach(stat => {
+        mods[stat] += traitMods[stat];
+      });
+    }
+  });
+  
+  return STATS.map(stat => ({
+    ...stat,
+    base: base,
+    mod: mods[stat.id] || 0,
+    total: base + (mods[stat.id] || 0)
+  }));
+}
+
+/**
+ * Calculate total points remaining
+ * Players start with BASE_POINTS and spend/gain based on choices
+ */
+const BASE_POINTS = 20; // Starting points for character creation
+
 function totalPoints() {
-  let sum = 0;
+  let sum = BASE_POINTS;
   
   const s = speciesChosen();
   const p = profession();
@@ -144,27 +273,117 @@ function renderTabs() {
   });
 }
 
-function renderSpecies() {
+function renderSpecies(forceRebuild = false) {
   const host = $('#speciesList');
+  
+  // If already rendered and not forcing rebuild, just update classes
+  if (host.children.length === SPECIES.length && !forceRebuild) {
+    updateSpeciesSelection();
+    return;
+  }
+  
   host.innerHTML = '';
 
   SPECIES.forEach(s => {
+    const card = document.createElement('div');
+    const chosen = state.speciesId === s.id;
+    card.className = 'species-card' + (chosen ? ' active' : '');
+    card.setAttribute('role', 'button');
+    card.setAttribute('data-species-id', s.id);
+    card.tabIndex = 0;
+
+    const pts = s.points || 0;
+    const sign = pts >= 0 ? '+' : '';
+
+    // Image handling - try multiple extensions
+    const imgHelper = createSpeciesImage(s.id, s.name);
+    const fallbackSvg = imgHelper.fallbackSvg;
+
+    card.innerHTML = `
+      <div class="species-img-wrap">
+        <img class="species-img" data-species-id="${s.id}" alt="${s.name}" src="${imgHelper.basePath}.png" onerror="tryNextSpeciesImage(this)">
+        <button class="info-btn" data-species-id="${s.id}" title="Voir la description" aria-label="Voir la description de ${s.name}">
+          <span class="info-dot"></span>
+        </button>
+      </div>
+      <div class="species-content">
+        <div class="species-name">${s.name}</div>
+        <p class="species-blurb">${s.blurb}</p>
+        <div class="species-tags">
+          ${(s.tags || []).slice(0, 3).map(t => `<span class="chip">${t}</span>`).join('')}
+          <span class="chip pos selected-chip" style="display:${chosen ? 'inline-block' : 'none'}">Sélectionnée</span>
+        </div>
+      </div>
+      <div class="species-pts">
+        <span class="chip ${pts >= 0 ? 'pos' : 'neg'}">${sign}${pts}</span>
+      </div>
+    `;
+
+    // Info button handler - show tooltip
+    const infoBtn = card.querySelector('.info-btn');
+    infoBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showSpeciesTooltip(s.id, infoBtn);
+    });
+
+    const selectIt = () => {
+      state.speciesId = s.id;
+      updateSpeciesSelection();
+      setTotalUI();
+    };
+
+    card.addEventListener('click', selectIt);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectIt();
+      }
+    });
+
+    host.appendChild(card);
+  });
+}
+
+function updateSpeciesSelection() {
+  $$('#speciesList .species-card').forEach(card => {
+    const isSelected = card.dataset.speciesId === state.speciesId;
+    card.classList.toggle('active', isSelected);
+    const selectedChip = card.querySelector('.selected-chip');
+    if (selectedChip) {
+      selectedChip.style.display = isSelected ? 'inline-block' : 'none';
+    }
+  });
+}
+
+function renderProfessions(forceRebuild = false) {
+  const host = $('#profList');
+  
+  // If already rendered and not forcing rebuild, just update classes
+  if (host.children.length === PROFESSIONS.length && !forceRebuild) {
+    updateProfessionSelection();
+    return;
+  }
+  
+  host.innerHTML = '';
+
+  PROFESSIONS.forEach(p => {
     const row = document.createElement('div');
-    row.className = 'choice' + (state.speciesId === s.id ? ' active' : '');
+    row.className = 'choice' + (state.professionId === p.id ? ' active' : '');
     row.setAttribute('role', 'button');
+    row.setAttribute('data-profession-id', p.id);
     row.tabIndex = 0;
 
-    const chosen = state.speciesId === s.id;
-    const pts = s.points || 0;
+    const chosen = state.professionId === p.id;
+    const pts = p.points || 0;
     const sign = pts >= 0 ? '+' : '';
 
     row.innerHTML = `
       <div class="left">
-        <strong>${s.name}</strong>
-        <p>${s.blurb}</p>
+        <strong>${p.name}</strong>
+        <p>${p.blurb}</p>
         <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap">
-          ${(s.tags || []).slice(0, 3).map(t => `<span class="chip">${t}</span>`).join('')}
-          ${chosen ? `<span class="chip pos">Sélectionnée</span>` : ''}
+          ${(p.tags || []).slice(0, 3).map(t => `<span class="chip">${t}</span>`).join('')}
+          <span class="chip pos selected-chip" style="display:${chosen ? 'inline-block' : 'none'}">Sélectionnée</span>
         </div>
       </div>
       <div class="right">
@@ -173,8 +392,8 @@ function renderSpecies() {
     `;
 
     const selectIt = () => {
-      state.speciesId = s.id;
-      renderSpecies();
+      state.professionId = p.id;
+      updateProfessionSelection();
       setTotalUI();
     };
 
@@ -190,49 +409,14 @@ function renderSpecies() {
   });
 }
 
-function renderProfessions() {
-  const host = $('#profList');
-  host.innerHTML = '';
-
-  PROFESSIONS.forEach(p => {
-    const row = document.createElement('div');
-    row.className = 'choice' + (state.professionId === p.id ? ' active' : '');
-    row.setAttribute('role', 'button');
-    row.tabIndex = 0;
-
-    const chosen = state.professionId === p.id;
-    const pts = p.points || 0;
-    const sign = pts >= 0 ? '+' : '';
-
-    row.innerHTML = `
-      <div class="left">
-        <strong>${p.name}</strong>
-        <p>${p.blurb}</p>
-        <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap">
-          ${(p.tags || []).slice(0, 3).map(t => `<span class="chip">${t}</span>`).join('')}
-          ${chosen ? `<span class="chip pos">Sélectionnée</span>` : ''}
-        </div>
-      </div>
-      <div class="right">
-        <span class="chip ${pts >= 0 ? 'pos' : 'neg'}">${sign}${pts}</span>
-      </div>
-    `;
-
-    const selectIt = () => {
-      state.professionId = p.id;
-      renderProfessions();
-      setTotalUI();
-    };
-
-    row.addEventListener('click', selectIt);
-    row.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        selectIt();
-      }
-    });
-
-    host.appendChild(row);
+function updateProfessionSelection() {
+  $$('#profList .choice').forEach(row => {
+    const isSelected = row.dataset.professionId === state.professionId;
+    row.classList.toggle('active', isSelected);
+    const selectedChip = row.querySelector('.selected-chip');
+    if (selectedChip) {
+      selectedChip.style.display = isSelected ? 'inline-block' : 'none';
+    }
   });
 }
 
@@ -339,6 +523,29 @@ function renderSkills() {
   });
 }
 
+function renderStats() {
+  const grid = $('#statsGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  
+  const stats = getComputedStats();
+  
+  stats.forEach(stat => {
+    const field = document.createElement('div');
+    field.className = 'field';
+    
+    const modSign = stat.mod >= 0 ? '+' : '';
+    const modDisplay = stat.mod !== 0 ? ` <span class="stat-mod ${stat.mod > 0 ? 'pos' : 'neg'}">(${modSign}${stat.mod})</span>` : '';
+    
+    field.innerHTML = `
+      <label>${stat.abbr}${modDisplay}</label>
+      <input type="number" id="${stat.id}" value="${stat.total}" readonly class="readonly-stat" />
+    `;
+    
+    grid.appendChild(field);
+  });
+}
+
 function renderSummary() {
   const ul = $('#summary');
   ul.innerHTML = '';
@@ -366,6 +573,7 @@ function renderSummary() {
   add('Traits', traitText);
   add('Points restants', String(totalPoints()));
 
+  renderStats();
   renderSkills();
   setTotalUI();
 }
@@ -423,35 +631,45 @@ async function downloadFinalPNG() {
   const target = document.getElementById('finalCapture') || document.getElementById('finalPage');
   if (!target) return;
 
+  // Hide export section during capture
+  const exportPanel = document.getElementById('exportPanel');
+  if (exportPanel) exportPanel.style.display = 'none';
+
   if (typeof window.html2canvas !== 'function') {
+    if (exportPanel) exportPanel.style.display = '';
     alert("html2canvas n'est pas chargé. Vérifie que le CDN est bien inclus.");
     return;
   }
 
-  const canvas = await window.html2canvas(target, {
-    backgroundColor: null,
-    scale: 2,
-    useCORS: true,
-    logging: false,
-  });
+  try {
+    const canvas = await window.html2canvas(target, {
+      backgroundColor: null,
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
 
-  const payload = buildSavePayload();
-  const name = (payload.codename || 'dossier')
-    .toLowerCase()
-    .replace(/[^a-z0-9\-_]+/gi, '_')
-    .slice(0, 64);
+    const payload = buildSavePayload();
+    const name = (payload.codename || 'dossier')
+      .toLowerCase()
+      .replace(/[^a-z0-9\-_]+/gi, '_')
+      .slice(0, 64);
 
-  canvas.toBlob((blob) => {
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${name || 'dossier'}_dossier.png`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }, 'image/png', 1.0);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${name || 'dossier'}_dossier.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }, 'image/png', 1.0);
+  } finally {
+    // Restore export section
+    if (exportPanel) exportPanel.style.display = '';
+  }
 }
 
 // =============================================================================
@@ -490,6 +708,121 @@ function startRefreshSweep() {
   
   el.addEventListener('animationend', () => el.classList.remove('on'));
   tick();
+}
+
+// =============================================================================
+// SPECIES TOOLTIP SYSTEM
+// =============================================================================
+let activeTooltip = null;
+
+function showSpeciesTooltip(speciesId, anchorEl) {
+  // Remove existing tooltip
+  hideSpeciesTooltip();
+  
+  const species = SPECIES.find(s => s.id === speciesId);
+  if (!species) return;
+  
+  const description = speciesDescriptions[speciesId] || 'Description non disponible.';
+  
+  // Create tooltip container
+  const tooltip = document.createElement('div');
+  tooltip.className = 'species-tooltip';
+  tooltip.innerHTML = `
+    <div class="tooltip-connector">
+      <div class="connector-dot"></div>
+      <div class="connector-line"></div>
+    </div>
+    <div class="tooltip-panel">
+      <div class="tooltip-header">
+        <span class="tooltip-title">${species.name}</span>
+        <button class="tooltip-close" aria-label="Fermer">×</button>
+      </div>
+      <div class="tooltip-body">
+        <p class="tooltip-desc">${description}</p>
+        ${species.hidden?.abilityMods && species.hidden.abilityMods !== 'Aucun' ? `
+        <div class="tooltip-mods">
+          <span class="tooltip-mod-label">Modificateurs:</span>
+          <span class="tooltip-mod-value">${species.hidden.abilityMods}</span>
+        </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+  
+  // Add to document
+  document.body.appendChild(tooltip);
+  activeTooltip = tooltip;
+  
+  // Position tooltip
+  positionTooltip(tooltip, anchorEl);
+  
+  // Animate in
+  requestAnimationFrame(() => {
+    tooltip.classList.add('visible');
+  });
+  
+  // Close button handler
+  tooltip.querySelector('.tooltip-close').addEventListener('click', (e) => {
+    e.stopPropagation();
+    hideSpeciesTooltip();
+  });
+  
+  // Click outside to close
+  setTimeout(() => {
+    document.addEventListener('click', handleTooltipOutsideClick);
+  }, 10);
+}
+
+function positionTooltip(tooltip, anchorEl) {
+  const rect = anchorEl.getBoundingClientRect();
+  const tooltipPanel = tooltip.querySelector('.tooltip-panel');
+  
+  // Position the tooltip to the right of the info button
+  tooltip.style.position = 'fixed';
+  tooltip.style.left = `${rect.right + 10}px`;
+  tooltip.style.top = `${rect.top + rect.height / 2}px`;
+  
+  // Adjust if off-screen
+  requestAnimationFrame(() => {
+    const tooltipRect = tooltipPanel.getBoundingClientRect();
+    
+    // If tooltip goes off right edge, position to the left instead
+    if (tooltipRect.right > window.innerWidth - 20) {
+      tooltip.classList.add('left-side');
+      tooltip.style.left = `${rect.left - 10}px`;
+    }
+    
+    // If tooltip goes off bottom, adjust vertically
+    if (tooltipRect.bottom > window.innerHeight - 20) {
+      const overflow = tooltipRect.bottom - window.innerHeight + 20;
+      tooltip.style.top = `${rect.top + rect.height / 2 - overflow}px`;
+    }
+    
+    // If tooltip goes off top
+    if (tooltipRect.top < 20) {
+      tooltip.style.top = `${rect.top + rect.height / 2 + (20 - tooltipRect.top)}px`;
+    }
+  });
+}
+
+function hideSpeciesTooltip() {
+  if (activeTooltip) {
+    activeTooltip.classList.remove('visible');
+    activeTooltip.classList.add('hiding');
+    setTimeout(() => {
+      if (activeTooltip) {
+        activeTooltip.remove();
+        activeTooltip = null;
+      }
+    }, 200);
+    document.removeEventListener('click', handleTooltipOutsideClick);
+  }
+}
+
+function handleTooltipOutsideClick(e) {
+  if (activeTooltip && !activeTooltip.contains(e.target) && !e.target.closest('.info-btn')) {
+    hideSpeciesTooltip();
+  }
 }
 
 // =============================================================================

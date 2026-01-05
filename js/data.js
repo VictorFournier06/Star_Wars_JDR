@@ -7,54 +7,489 @@
 
 // =============================================================================
 // SPECIES
+// Curated for Old Republic / Eternal Empire era intrigue campaigns
+// Image files should be placed in assets/species/ folder
 // =============================================================================
 const SPECIES = [
+  // --- CORE SPECIES (Classic choices) ---
   {
     id: 'humain',
     name: "Humain",
     points: 0,
-    blurb: "Adaptable. Tu t'intègres partout — et tu survis dans les zones grises.",
-    tags: ["polyvalent"],
+    blurb: "Adaptable et répandu dans toute la galaxie. Tu t'intègres partout.",
+    tags: ["polyvalent", "diplomatie"],
+    image: "humain.png",
     hidden: {
-      skills: ["Persuasion"]
+      abilityMods: "Aucun",
+      languages: ["Basic"],
+      skills: ["Persuasion"],
+      traits: ["Bonus Feat", "Bonus Skill"]
     }
   },
   {
-    id: 'twi',
+    id: 'twilek',
     name: "Twi'lek",
     points: 0,
-    blurb: "Expressif, social, résilient. Tu lis les gens avant qu'ils parlent.",
-    tags: ["social"],
+    blurb: "Expressif et charismatique. Tes lekku trahissent parfois tes émotions.",
+    tags: ["social", "charme"],
+    image: "twilek.png",
     hidden: {
-      skills: ["Persuasion", "Perception"]
+      abilityMods: "+2 CHA, -2 SAG",
+      languages: ["Basic", "Ryl"],
+      skills: ["Persuasion", "Tromperie"],
+      traits: ["Deceptive", "Great Fortitude"]
     }
   },
   {
     id: 'zabrak',
     name: "Zabrak",
     points: 0,
-    blurb: "Tenace. Tu encaisses, tu avances. Les compromis, c'est pour les autres.",
-    tags: ["endurant"],
+    blurb: "Tenace et déterminé. Les épreuves te rendent plus fort.",
+    tags: ["endurant", "volonté"],
+    image: "zabrak.png",
     hidden: {
-      skills: ["Endurance"]
+      abilityMods: "Aucun",
+      languages: ["Basic", "Zabrak"],
+      skills: ["Endurance"],
+      traits: ["Heightened Awareness", "Superior Defenses"]
     }
   },
   {
-    id: 'droid',
+    id: 'miraluka',
+    name: "Miraluka",
+    points: -2,
+    blurb: "Tu vois à travers la Force, pas avec des yeux. Perceptif au-delà du visible.",
+    tags: ["Force", "perception"],
+    image: "miraluka.png",
+    hidden: {
+      abilityMods: "+2 INT, -2 DEX",
+      languages: ["Basic", "Miralukese"],
+      skills: ["Perception", "Use the Force"],
+      traits: ["Force Sight", "Conditional Bonus Feat"]
+    }
+  },
+  {
+    id: 'chiss',
+    name: "Chiss",
+    points: -2,
+    blurb: "Stratège et calculateur. Tu analyses avant d'agir.",
+    tags: ["tactique", "intelligence"],
+    image: "chiss.png",
+    hidden: {
+      abilityMods: "+2 INT",
+      languages: ["Basic", "Cheunh"],
+      skills: ["Perception", "Connaissance (tactique)"],
+      traits: ["Low-Light Vision", "Tactician"]
+    }
+  },
+  {
+    id: 'rattataki',
+    name: "Rattataki",
+    points: 0,
+    blurb: "Guerrier-né d'une planète brutale. La violence est ton langage.",
+    tags: ["combat", "intimidation"],
+    image: "rattataki.png",
+    hidden: {
+      abilityMods: "Aucun",
+      languages: ["Basic", "Rattataki"],
+      skills: ["Intimidation", "Endurance"],
+      traits: ["Bonus Feat (Martial Arts)", "Intimidating"]
+    }
+  },
+  {
+    id: 'cathar',
+    name: "Cathar",
+    points: 0,
+    blurb: "Félin et agile. Tes instincts de chasseur te guident.",
+    tags: ["agilité", "instinct"],
+    image: "cathar.png",
+    hidden: {
+      abilityMods: "+2 DEX, -2 INT",
+      languages: ["Basic", "Catharese"],
+      skills: ["Acrobaties", "Perception"],
+      traits: ["Natural Weapons", "Heightened Awareness"]
+    }
+  },
+  {
+    id: 'sith_pureblood',
+    name: "Sith (Sang-pur)",
+    points: -4,
+    blurb: "Descendant de l'ancienne espèce Sith. Le Côté Obscur coule dans tes veines.",
+    tags: ["Force", "obscur"],
+    image: "sith_pureblood.png",
+    hidden: {
+      abilityMods: "+2 CHA, -2 SAG",
+      languages: ["Basic", "Sith"],
+      skills: ["Use the Force", "Persuasion"],
+      traits: ["Dark Side Affinity", "Force Sensitivity"]
+    }
+  },
+
+  // --- ESPÈCES TECHNIQUES ---
+  {
+    id: 'duros',
+    name: "Duros",
+    points: 0,
+    blurb: "Explorateur et pilote né. L'hyperespace n'a pas de secrets pour toi.",
+    tags: ["pilotage", "exploration"],
+    image: "duros.png",
+    hidden: {
+      abilityMods: "+2 DEX, +2 INT, -2 CON",
+      languages: ["Basic", "Durese"],
+      skills: ["Pilotage", "Mécanique"],
+      traits: ["Expert Pilot", "Spacer"]
+    }
+  },
+  {
+    id: 'sullustan',
+    name: "Sullustan",
+    points: 0,
+    blurb: "Navigateur exceptionnel avec une mémoire spatiale infaillible.",
+    tags: ["navigation", "technique"],
+    image: "sullustan.jpg",
+    hidden: {
+      abilityMods: "+2 DEX, -2 CON",
+      languages: ["Basic", "Sullustese"],
+      skills: ["Pilotage", "Connaissance (galactique)"],
+      traits: ["Darkvision", "Expert Pilot"]
+    }
+  },
+  {
+    id: 'droide',
     name: "Droïde",
     points: +4,
-    blurb: "Efficace. Tu es une fonction… avec une volonté.",
-    tags: ["tech"],
+    blurb: "Machine pensante. Tu es une fonction... avec une volonté émergente.",
+    tags: ["tech", "logique"],
+    image: "droide.png",
     hidden: {
-      skills: ["Informatique", "Mécanique"]
+      abilityMods: "Variable selon modèle",
+      languages: ["Basic", "Binary"],
+      skills: ["Informatique", "Mécanique"],
+      traits: ["Droid Systems", "Behavioral Inhibitor"]
+    }
+  },
+
+  // --- ESPÈCES SOCIALES / INTRIGUE ---
+  {
+    id: 'bothan',
+    name: "Bothan",
+    points: 0,
+    blurb: "Maître espion. L'information est ta monnaie.",
+    tags: ["espionnage", "réseau"],
+    image: "bothan.png",
+    hidden: {
+      abilityMods: "+2 DEX, -2 CON",
+      languages: ["Basic", "Bothese"],
+      skills: ["Renseignement", "Tromperie"],
+      traits: ["Heightened Awareness", "Bonus Feat (Skill Focus)"]
+    }
+  },
+  {
+    id: 'zeltron',
+    name: "Zeltron",
+    points: 0,
+    blurb: "Empathique et séduisant. Tu ressens et influences les émotions.",
+    tags: ["empathie", "charme"],
+    image: "zeltron.png",
+    hidden: {
+      abilityMods: "+2 CHA, -2 SAG",
+      languages: ["Basic", "Zeltron"],
+      skills: ["Persuasion", "Perception"],
+      traits: ["Pheromones", "Empathy"]
+    }
+  },
+  {
+    id: 'falleen',
+    name: "Falleen",
+    points: -2,
+    blurb: "Noble et magnétique. Tes phéromones font plier les volontés.",
+    tags: ["manipulation", "noblesse"],
+    image: "falleen.png",
+    hidden: {
+      abilityMods: "+2 CHA, -2 SAG",
+      languages: ["Basic", "Falleen"],
+      skills: ["Persuasion", "Tromperie"],
+      traits: ["Pheromones", "Hold Breath"]
+    }
+  },
+
+  // --- ESPÈCES PHYSIQUES / COMBAT ---
+  {
+    id: 'wookiee',
+    name: "Wookiee",
+    points: -2,
+    blurb: "Colosse loyal. Ta force est légendaire, ta dette d'honneur absolue.",
+    tags: ["force", "loyauté"],
+    image: "wookiee.png",
+    hidden: {
+      abilityMods: "+4 FOR, +2 CON, -2 DEX, -2 SAG, -2 CHA",
+      languages: ["Shyriiwook (Basic compris)"],
+      skills: ["Escalade", "Intimidation"],
+      traits: ["Extraordinary Recuperation", "Rage", "Intimidating"]
+    }
+  },
+  {
+    id: 'trandoshan',
+    name: "Trandoshan",
+    points: 0,
+    blurb: "Chasseur impitoyable. La traque est un art sacré.",
+    tags: ["chasseur", "brutal"],
+    image: "trandoshan.png",
+    hidden: {
+      abilityMods: "+2 FOR, -2 DEX",
+      languages: ["Basic", "Dosh"],
+      skills: ["Survie", "Perception"],
+      traits: ["Darkvision", "Natural Weapons", "Regeneration"]
+    }
+  },
+  {
+    id: 'keldor',
+    name: "Kel Dor",
+    points: 0,
+    blurb: "Sage et juste. Tu respires un air que les autres ne peuvent survivre.",
+    tags: ["sagesse", "justice"],
+    image: "keldor.png",
+    hidden: {
+      abilityMods: "+2 DEX, +2 SAG, -2 CON",
+      languages: ["Basic", "Kel Dor"],
+      skills: ["Perception", "Persuasion"],
+      traits: ["Low-Light Vision", "Atmospheric Dependence"]
+    }
+  },
+  {
+    id: 'togruta',
+    name: "Togruta",
+    points: 0,
+    blurb: "Chasseur de meute. Tes montrals captent ce que d'autres ne perçoivent pas.",
+    tags: ["perception", "communauté"],
+    image: "togruta.png",
+    hidden: {
+      abilityMods: "+2 DEX, -2 CON",
+      languages: ["Basic", "Togruti"],
+      skills: ["Perception", "Survie"],
+      traits: ["Spatial Awareness", "Pack Hunter"]
+    }
+  },
+  {
+    id: 'nautolan',
+    name: "Nautolan",
+    points: 0,
+    blurb: "Amphibien empathique. Tes tentacules lisent les phéromones émotionnelles.",
+    tags: ["empathie", "aquatique"],
+    image: "nautolan.png",
+    hidden: {
+      abilityMods: "+2 CON, -2 INT, -2 SAG",
+      languages: ["Basic", "Nautila"],
+      skills: ["Natation", "Perception"],
+      traits: ["Expert Swimmer", "Pheromone Detection", "Low-Light Vision"]
+    }
+  },
+
+  // --- ESPÈCES ADDITIONNELLES (Old Republic) ---
+  {
+    id: 'mirialan',
+    name: "Mirialan",
+    points: 0,
+    blurb: "Spirituel et réfléchi. Tes tatouages racontent ton histoire et tes accomplissements.",
+    tags: ["spirituel", "discipline"],
+    image: "mirialan.png",
+    hidden: {
+      abilityMods: "+2 SAG, -2 CHA",
+      languages: ["Basic", "Mirialan"],
+      skills: ["Perception", "Survie"],
+      traits: ["Heightened Awareness", "Superior Defenses"]
+    }
+  },
+  {
+    id: 'rodian',
+    name: "Rodian",
+    points: 0,
+    blurb: "Chasseur instinctif de Rodia. La traque est dans ton sang.",
+    tags: ["chasseur", "perception"],
+    image: "rodian.png",
+    hidden: {
+      abilityMods: "+2 DEX, -2 SAG, -2 CHA",
+      languages: ["Basic", "Rodese"],
+      skills: ["Survie", "Perception"],
+      traits: ["Low-Light Vision", "Heightened Awareness"]
+    }
+  },
+  {
+    id: 'devaronian',
+    name: "Devaronien",
+    points: 0,
+    blurb: "Voyageur né. Les mâles errent, les femelles bâtissent. Tu appartiens aux étoiles.",
+    tags: ["voyage", "commerce"],
+    image: "devaronian.png",
+    hidden: {
+      abilityMods: "Aucun",
+      languages: ["Basic", "Devaronese"],
+      skills: ["Tromperie", "Persuasion"],
+      traits: ["Bonus Feat (Skill Focus)", "Low-Light Vision"]
+    }
+  },
+  {
+    id: 'arkanian',
+    name: "Arkanien",
+    points: -2,
+    blurb: "Scientifique de génie, arrogant par nature. La génétique est ton art.",
+    tags: ["science", "génétique"],
+    image: "arkanian.png",
+    hidden: {
+      abilityMods: "+2 INT, -2 SAG",
+      languages: ["Basic", "Arkanian"],
+      skills: ["Connaissance (science)", "Informatique"],
+      traits: ["Darkvision", "Bonus Feat (Skill Focus)"]
+    }
+  },
+  {
+    id: 'echani',
+    name: "Echani",
+    points: -2,
+    blurb: "Guerrier artiste. Le combat est ton langage, chaque mouvement une conversation.",
+    tags: ["combat", "discipline"],
+    image: "echani.png",
+    hidden: {
+      abilityMods: "+2 DEX, -2 CON",
+      languages: ["Basic", "Echani"],
+      skills: ["Acrobaties", "Perception"],
+      traits: ["Martial Arts I", "Combat Reading"]
+    }
+  },
+  {
+    id: 'mandalorian_human',
+    name: "Mandalorien",
+    points: -4,
+    blurb: "Le sang ne fait pas le Mandalorien — la culture, si. Tu es né pour la guerre.",
+    tags: ["guerrier", "armure"],
+    image: "mandalorian.png",
+    hidden: {
+      abilityMods: "Aucun",
+      languages: ["Basic", "Mando'a"],
+      skills: ["Tir", "Endurance"],
+      traits: ["Armor Proficiency (Light)", "Weapon Proficiency (Rifles)"]
+    }
+  },
+  {
+    id: 'weequay',
+    name: "Weequay",
+    points: +2,
+    blurb: "Rugueux et résistant. Ton peuple communique par phéromones — les étrangers ne comprennent jamais.",
+    tags: ["résistant", "mercenaire"],
+    image: "weequay.png",
+    hidden: {
+      abilityMods: "-2 CHA",
+      languages: ["Basic", "Weequay"],
+      skills: ["Survie", "Intimidation"],
+      traits: ["Great Fortitude"]
+    }
+  },
+  {
+    id: 'gamorrean',
+    name: "Gamorréen",
+    points: +2,
+    blurb: "Brutal et loyal. Ta force est légendaire, ta subtilité... moins.",
+    tags: ["force brute", "combat"],
+    image: "gamorrean.png",
+    hidden: {
+      abilityMods: "+4 FOR, +2 CON, -4 INT, -2 SAG, -2 CHA",
+      languages: ["Gamorrese (Basic compris)"],
+      skills: ["Mêlée", "Intimidation"],
+      traits: ["Primitive", "Great Fortitude"]
+    }
+  },
+  {
+    id: 'ithorian',
+    name: "Ithorien",
+    points: 0,
+    blurb: "Pacifiste de la jungle. Ta voix stéréo peut aussi être une arme.",
+    tags: ["pacifiste", "nature"],
+    image: "ithorian.png",
+    hidden: {
+      abilityMods: "+2 SAG, +2 CHA, -2 DEX",
+      languages: ["Basic", "Ithorian"],
+      skills: ["Persuasion", "Connaissance (vie)"],
+      traits: ["Bellow", "Pacifist"]
+    }
+  },
+  {
+    id: 'gran',
+    name: "Gran",
+    points: 0,
+    blurb: "Sociable et émotif. Tes trois yeux voient tout, ton cœur ressent trop.",
+    tags: ["social", "perception"],
+    image: "gran.png",
+    hidden: {
+      abilityMods: "-2 SAG",
+      languages: ["Basic", "Gran"],
+      skills: ["Perception", "Persuasion"],
+      traits: ["Heightened Awareness", "Gregarious"]
+    }
+  },
+  {
+    id: 'bith',
+    name: "Bith",
+    points: 0,
+    blurb: "Intellectuel sensible. Tes sens sont affûtés, ton corps moins.",
+    tags: ["intellectuel", "artiste"],
+    image: "bith.png",
+    hidden: {
+      abilityMods: "+2 INT, +2 SAG, -2 CON, -2 FOR",
+      languages: ["Basic", "Bith"],
+      skills: ["Perception", "Connaissance (art)"],
+      traits: ["Keen Senses", "Sensitive"]
+    }
+  },
+  {
+    id: 'selkath',
+    name: "Selkath",
+    points: 0,
+    blurb: "Amphibien de Manaan. Neutres par tradition, impitoyables quand poussés à bout.",
+    tags: ["aquatique", "neutre"],
+    image: "selkath.png",
+    hidden: {
+      abilityMods: "+2 SAG, -2 CHA",
+      languages: ["Basic", "Selkath"],
+      skills: ["Médecine", "Perception"],
+      traits: ["Amphibious", "Natural Claws"]
+    }
+  },
+  {
+    id: 'pureblood_massassi',
+    name: "Massassi",
+    points: -2,
+    blurb: "Guerrier Sith antique. Ta caste était l'armée des Seigneurs Sith.",
+    tags: ["guerrier", "sith"],
+    image: "massassi.png",
+    hidden: {
+      abilityMods: "+4 FOR, +2 CON, -2 INT, -2 CHA",
+      languages: ["Sith", "Basic (limité)"],
+      skills: ["Mêlée", "Intimidation"],
+      traits: ["Rage", "Dark Side Affinity"]
+    }
+  },
+  {
+    id: 'rakata',
+    name: "Rakata",
+    points: -6,
+    blurb: "Vestige de l'Empire Infini. Ton peuple a dominé la galaxie — il y a vingt mille ans.",
+    tags: ["ancien", "Force"],
+    image: "rakata.png",
+    hidden: {
+      abilityMods: "+2 INT, -2 CHA",
+      languages: ["Basic", "Rakata"],
+      skills: ["Use the Force", "Connaissance (technologie)"],
+      traits: ["Force Sensitivity", "Ancient Knowledge"]
     }
   },
 ];
 
 // =============================================================================
 // PROFESSIONS
+// Designed for intrigue, espionage, and non-Jedi gameplay in the Old Republic era
 // =============================================================================
 const PROFESSIONS = [
+  // --- INTELLIGENCE & ESPIONAGE ---
   {
     id: 'intel',
     name: "Agent de renseignement",
@@ -63,9 +498,48 @@ const PROFESSIONS = [
     tags: ["infiltration", "réseau"],
     hidden: {
       talent: "Couverture",
-      skills: ["Discrétion", "Tromperie", "Renseignement", "Perception"]
+      skills: ["Discrétion", "Tromperie", "Renseignement", "Perception"],
+      abilityMods: "+1 INT, +1 SAG"
     }
   },
+  {
+    id: 'assassin',
+    name: "Assassin",
+    points: -8,
+    blurb: "Un seul coup bien placé. Pas de témoins, pas de trace, pas de regrets.",
+    tags: ["élimination", "furtif"],
+    hidden: {
+      talent: "Frappe mortelle",
+      skills: ["Discrétion", "Mêlée", "Perception", "Acrobaties"],
+      abilityMods: "+2 DEX"
+    }
+  },
+  {
+    id: 'infiltrator',
+    name: "Infiltrateur",
+    points: -6,
+    blurb: "Tu deviens celui qu'on veut que tu sois. Ton vrai visage n'existe plus.",
+    tags: ["imposture", "terrain"],
+    hidden: {
+      talent: "Identité de couverture",
+      skills: ["Tromperie", "Discrétion", "Perception", "Persuasion"],
+      abilityMods: "+1 CHA, +1 INT"
+    }
+  },
+  {
+    id: 'slicer',
+    name: "Slicer",
+    points: -5,
+    blurb: "Les systèmes te parlent. Tu décryptes, tu t'infiltres, tu disparais.",
+    tags: ["informatique", "HoloNet"],
+    hidden: {
+      talent: "Fantôme numérique",
+      skills: ["Informatique", "Mécanique", "Renseignement", "Discrétion"],
+      abilityMods: "+2 INT"
+    }
+  },
+
+  // --- DIPLOMATIE & INTRIGUE ---
   {
     id: 'diplo',
     name: "Diplomate subalterne",
@@ -74,18 +548,58 @@ const PROFESSIONS = [
     tags: ["négociation", "protocole"],
     hidden: {
       talent: "Protocole",
-      skills: ["Persuasion", "Bureaucratie", "Connaissance (social)", "Perception"]
+      skills: ["Persuasion", "Bureaucratie", "Connaissance (social)", "Perception"],
+      abilityMods: "+1 CHA, +1 SAG"
     }
   },
   {
+    id: 'noble',
+    name: "Noble mineur",
+    points: -6,
+    blurb: "Le sang et le nom ouvrent des portes. Les dettes et les scandales les ferment.",
+    tags: ["lignée", "influence"],
+    hidden: {
+      talent: "Réputation",
+      skills: ["Persuasion", "Connaissance (noblesse)", "Tromperie", "Intimidation"],
+      abilityMods: "+2 CHA"
+    }
+  },
+  {
+    id: 'courtier',
+    name: "Courtier",
+    points: -5,
+    blurb: "L'information, c'est du pouvoir. Tu vends les deux au plus offrant.",
+    tags: ["information", "contacts"],
+    hidden: {
+      talent: "Réseau d'informateurs",
+      skills: ["Renseignement", "Persuasion", "Perception", "Tromperie"],
+      abilityMods: "+1 INT, +1 CHA"
+    }
+  },
+  {
+    id: 'provocateur',
+    name: "Provocateur",
+    points: -4,
+    blurb: "Tu sèmes le doute, la discorde, le chaos contrôlé. Tes ennemis s'entredéchirent.",
+    tags: ["manipulation", "subversion"],
+    hidden: {
+      talent: "Rumeur",
+      skills: ["Tromperie", "Persuasion", "Intimidation", "Connaissance (social)"],
+      abilityMods: "+2 CHA"
+    }
+  },
+
+  // --- SUPPORT TECHNIQUE ---
+  {
     id: 'arch',
-    name: "Archiviste / analyste",
+    name: "Archiviste / Analyste",
     points: -2,
     blurb: "Tu transformes un détail oublié en levier stratégique.",
     tags: ["archives", "déduction"],
     hidden: {
       talent: "Accès archives",
-      skills: ["Recherche", "Linguistique", "Connaissance (galactique)", "Connaissance (bureaucratie)"]
+      skills: ["Recherche", "Linguistique", "Connaissance (galactique)", "Connaissance (bureaucratie)"],
+      abilityMods: "+2 INT"
     }
   },
   {
@@ -96,9 +610,36 @@ const PROFESSIONS = [
     tags: ["réparation", "terrain"],
     hidden: {
       talent: "Ingénieur terrain",
-      skills: ["Mécanique", "Informatique", "Systèmes", "Endurance"]
+      skills: ["Mécanique", "Informatique", "Systèmes", "Endurance"],
+      abilityMods: "+1 INT, +1 CON"
     }
   },
+  {
+    id: 'medic',
+    name: "Médecin de terrain",
+    points: -4,
+    blurb: "Dans le chaos, tu es la différence entre la mort et un jour de plus.",
+    tags: ["médecine", "urgence"],
+    hidden: {
+      talent: "Chirurgie d'urgence",
+      skills: ["Médecine", "Perception", "Endurance", "Connaissance (biologie)"],
+      abilityMods: "+1 SAG, +1 INT"
+    }
+  },
+  {
+    id: 'improviser',
+    name: "Bricoleur de génie",
+    points: -3,
+    blurb: "Deux fils, un condensateur et du ruban. Tu fais des miracles avec rien.",
+    tags: ["improvisation", "gadgets"],
+    hidden: {
+      talent: "Récupération",
+      skills: ["Mécanique", "Survie", "Informatique", "Perception"],
+      abilityMods: "+2 INT"
+    }
+  },
+
+  // --- COMBAT & TERRAIN ---
   {
     id: 'pilot',
     name: "Pilote d'escorte",
@@ -106,8 +647,21 @@ const PROFESSIONS = [
     blurb: "Tu fais passer un chasseur entre deux tirs comme si c'était une routine.",
     tags: ["poursuite", "spatial"],
     hidden: {
-      talent: "Instinct",
-      skills: ["Pilotage", "Perception", "Tactique", "Endurance"]
+      talent: "Instinct de vol",
+      skills: ["Pilotage", "Perception", "Tactique", "Endurance"],
+      abilityMods: "+1 DEX, +1 SAG"
+    }
+  },
+  {
+    id: 'gunner',
+    name: "Artilleur",
+    points: -4,
+    blurb: "Une cible, un tir. Tu ne gaspilles pas de munitions.",
+    tags: ["tir", "précision"],
+    hidden: {
+      talent: "Oeil de tireur",
+      skills: ["Tir", "Perception", "Mécanique", "Tactique"],
+      abilityMods: "+2 DEX"
     }
   },
   {
@@ -118,7 +672,120 @@ const PROFESSIONS = [
     tags: ["sabotage", "furtif"],
     hidden: {
       talent: "Charge improvisée",
-      skills: ["Discrétion", "Mécanique", "Informatique", "Tromperie"]
+      skills: ["Discrétion", "Mécanique", "Informatique", "Tromperie"],
+      abilityMods: "+1 DEX, +1 INT"
+    }
+  },
+  {
+    id: 'commando',
+    name: "Commando",
+    points: -6,
+    blurb: "Insertion, objectif, extraction. En équipe ou seul, tu fais le travail.",
+    tags: ["combat", "tactique"],
+    hidden: {
+      talent: "Travail d'équipe",
+      skills: ["Tir", "Discrétion", "Tactique", "Endurance"],
+      abilityMods: "+1 FOR, +1 CON"
+    }
+  },
+  {
+    id: 'bounty',
+    name: "Chasseur de primes",
+    points: -6,
+    blurb: "Tu traques, tu trouves, tu ramènes. Mort ou vif — selon le contrat.",
+    tags: ["traque", "prime"],
+    hidden: {
+      talent: "Traque",
+      skills: ["Survie", "Perception", "Intimidation", "Tir"],
+      abilityMods: "+1 DEX, +1 SAG"
+    }
+  },
+  {
+    id: 'merc',
+    name: "Mercenaire",
+    points: -4,
+    blurb: "Pas de drapeau, pas de camp. Juste les crédits et le prochain contrat.",
+    tags: ["combat", "indépendant"],
+    hidden: {
+      talent: "Vétéran",
+      skills: ["Tir", "Mêlée", "Tactique", "Survie"],
+      abilityMods: "+1 FOR, +1 CON"
+    }
+  },
+  {
+    id: 'bodyguard',
+    name: "Garde du corps",
+    points: -4,
+    blurb: "Entre la menace et le client, il y a toi. Et tu ne bouges pas.",
+    tags: ["protection", "vigilance"],
+    hidden: {
+      talent: "Bouclier humain",
+      skills: ["Perception", "Mêlée", "Intimidation", "Endurance"],
+      abilityMods: "+1 CON, +1 SAG"
+    }
+  },
+
+  // --- CRIME & UNDERWORLD ---
+  {
+    id: 'smuggler',
+    name: "Contrebandier",
+    points: -4,
+    blurb: "Cargaison sensible, route dangereuse, douanes corrompues. Juste un mardi.",
+    tags: ["contrebande", "pilotage"],
+    hidden: {
+      talent: "Compartiments secrets",
+      skills: ["Pilotage", "Tromperie", "Négociation", "Discrétion"],
+      abilityMods: "+1 DEX, +1 CHA"
+    }
+  },
+  {
+    id: 'thief',
+    name: "Voleur professionnel",
+    points: -5,
+    blurb: "Ce qui est à toi peut être à moi. Question de timing et de doigts agiles.",
+    tags: ["larcin", "infiltration"],
+    hidden: {
+      talent: "Doigts de fée",
+      skills: ["Discrétion", "Acrobaties", "Perception", "Mécanique"],
+      abilityMods: "+2 DEX"
+    }
+  },
+  {
+    id: 'enforcer',
+    name: "Homme de main",
+    points: -2,
+    blurb: "Quand les mots ne suffisent plus, il reste les poings. Et tu parles bien.",
+    tags: ["intimidation", "violence"],
+    hidden: {
+      talent: "Présence",
+      skills: ["Intimidation", "Mêlée", "Perception", "Endurance"],
+      abilityMods: "+2 FOR"
+    }
+  },
+  {
+    id: 'fixer',
+    name: "Intermédiaire",
+    points: -4,
+    blurb: "Tu connais quelqu'un qui connaît quelqu'un. Les connexions, c'est ton métier.",
+    tags: ["contacts", "deals"],
+    hidden: {
+      talent: "Réseau criminel",
+      skills: ["Renseignement", "Négociation", "Tromperie", "Connaissance (pègre)"],
+      abilityMods: "+1 INT, +1 CHA"
+    }
+  },
+
+  // --- FORCE-ADJACENT (for those who want a taste) ---
+  {
+    id: 'exile',
+    name: "Exilé sensible",
+    points: -8,
+    blurb: "La Force murmure, mais tu as appris à l'ignorer. Ou à t'en servir en secret.",
+    tags: ["Force", "secret"],
+    hidden: {
+      talent: "Intuition",
+      skills: ["Perception", "Discrétion", "Use the Force", "Tromperie"],
+      abilityMods: "+1 SAG, +1 CHA"
     }
   },
 ];
@@ -132,90 +799,576 @@ const PROFESSIONS = [
 // For display, the points shown are INVERTED:
 //   - Advantages show negative (you spend points)
 //   - Drawbacks show positive (you gain points)
+//
+// Inspired by SWSE Talents & Feats, adapted for narrative play
 // =============================================================================
 const TRAITS = [
-  // ---- ADVANTAGES ----
+  // ========================================
+  // MENTAL / INTELLIGENCE
+  // ========================================
   {
     id: 'analytique',
     name: "Esprit analytique",
     value: +3,
-    desc: "Recoupements rapides, logique, déductions.",
-    tags: ["enquête"],
-    incompatible: ["impulsif"]
+    desc: "Recoupements rapides, logique, déductions. Tu vois les patterns que d'autres ignorent.",
+    tags: ["enquête", "mental"],
+    incompatible: ["impulsif"],
+    hidden: { abilityMods: "+2 INT" }
+  },
+  {
+    id: 'tacticien',
+    name: "Tacticien",
+    value: +6,
+    desc: "Tu analyses le terrain, anticipes les mouvements. En combat, tu places tes alliés avec précision.",
+    tags: ["tactique", "combat"],
+    incompatible: [],
+    hidden: { abilityMods: "+2 INT" }
+  },
+  {
+    id: 'memoire_eidetique',
+    name: "Mémoire eidétique",
+    value: +4,
+    desc: "Tu n'oublies rien. Plans, visages, conversations — tout est archivé dans ta tête.",
+    tags: ["mental", "archives"],
+    incompatible: ["confusion"],
+    hidden: { abilityMods: "+1 INT" }
   },
   {
     id: 'linguiste',
     name: "Linguiste galactique",
     value: +6,
-    desc: "Déchiffre des écritures rares, accélère une traduction.",
-    tags: ["langues"],
+    desc: "Tu déchiffres des écritures rares et accélères toute traduction. Les langues sont ton terrain de jeu.",
+    tags: ["langues", "archives"],
+    incompatible: [],
+    hidden: { abilityMods: "+1 INT" }
+  },
+  {
+    id: 'gearhead',
+    name: "Technophile",
+    value: +4,
+    desc: "Les machines te parlent. Tu bidouilles, optimises, répares plus vite que les manuels le prévoient.",
+    tags: ["technique", "mécanique"],
+    incompatible: ["technophobe"]
+  },
+  {
+    id: 'slicer_talent',
+    name: "Ghost dans le système",
+    value: +6,
+    desc: "Les réseaux n'ont pas de secrets pour toi. Tu infiltres, extrais, disparais sans laisser de trace.",
+    tags: ["informatique", "infiltration"],
     incompatible: []
   },
+
+  // ========================================
+  // SOCIAL / INFLUENCE
+  // ========================================
   {
     id: 'reseau',
     name: "Réseau discret",
     value: +8,
-    desc: "Trois contacts fiables : info, logistique, planque.",
-    tags: ["intrigue"],
+    desc: "Trois contacts fiables : info, logistique, planque. Tu ne voyages jamais seul.",
+    tags: ["intrigue", "contacts"],
     incompatible: ["surveillance"]
   },
+  {
+    id: 'manipulateur',
+    name: "Manipulateur né",
+    value: +6,
+    desc: "Tu retournes les gens contre eux-mêmes. Tes ennemis s'entredéchirent sans savoir pourquoi.",
+    tags: ["manipulation", "social"],
+    incompatible: ["franc"]
+  },
+  {
+    id: 'charisme',
+    name: "Présence magnétique",
+    value: +4,
+    desc: "Quand tu parles, on t'écoute. Tu attires l'attention — pour le meilleur ou le pire.",
+    tags: ["charisme", "leadership"],
+    incompatible: ["effacement"],
+    hidden: { abilityMods: "+2 CHA" }
+  },
+  {
+    id: 'intimidant',
+    name: "Regard de fer",
+    value: +4,
+    desc: "Un regard suffit. Les faibles reculent, les forts hésitent. Tu inspires la crainte.",
+    tags: ["intimidation", "présence"],
+    incompatible: [],
+    hidden: { abilityMods: "+1 CHA" }
+  },
+  {
+    id: 'silver_tongue',
+    name: "Langue d'argent",
+    value: +5,
+    desc: "Les mots coulent, les doutes s'installent. Tu convaincs avant même qu'on réfléchisse.",
+    tags: ["persuasion", "social"],
+    incompatible: ["bègue"],
+    hidden: { abilityMods: "+2 CHA" }
+  },
+  {
+    id: 'empathique',
+    name: "Empathie profonde",
+    value: +3,
+    desc: "Tu ressens les émotions des autres. Leurs mensonges te sautent aux yeux.",
+    tags: ["perception", "social"],
+    incompatible: ["sociopathe"],
+    hidden: { abilityMods: "+2 SAG" }
+  },
+  {
+    id: 'informateur',
+    name: "Oreilles partout",
+    value: +5,
+    desc: "Tu sais toujours ce qui se dit. Les rumeurs te trouvent avant les autres.",
+    tags: ["information", "réseau"],
+    incompatible: []
+  },
+
+  // ========================================
+  // COMBAT / PHYSIQUE
+  // ========================================
   {
     id: 'pilotage',
     name: "As du pilotage",
     value: +10,
-    desc: "Poursuites spatiales, manœuvres risquées, évasion.",
-    tags: ["spatial"],
-    incompatible: ["phobie_espace"]
+    desc: "Poursuites spatiales, manœuvres risquées, évasion. Aux commandes, tu es imbattable.",
+    tags: ["spatial", "pilotage"],
+    incompatible: ["phobie_espace"],
+    hidden: { abilityMods: "+2 DEX" }
   },
   {
     id: 'as_du_tir',
     name: "As du tir",
     value: +8,
-    desc: "Tirs utiles, précision et sang-froid sous pression.",
-    tags: ["combat"],
-    incompatible: ["aveugle"]
+    desc: "Un tir, une cible. Précision et sang-froid sous pression, même dans le chaos.",
+    tags: ["combat", "précision"],
+    incompatible: ["aveugle"],
+    hidden: { abilityMods: "+2 DEX" }
+  },
+  {
+    id: 'martial_artist',
+    name: "Arts martiaux",
+    value: +6,
+    desc: "Ton corps est une arme. Sans blaster, tu restes mortel.",
+    tags: ["mêlée", "discipline"],
+    incompatible: ["fragile"],
+    hidden: { abilityMods: "+1 FOR, +1 DEX" }
+  },
+  {
+    id: 'duelist',
+    name: "Duelliste",
+    value: +6,
+    desc: "En combat singulier, tu excelles. Chaque parade, chaque feinte est calculée.",
+    tags: ["mêlée", "duel"],
+    incompatible: []
+  },
+  {
+    id: 'endurance',
+    name: "Endurance exceptionnelle",
+    value: +4,
+    desc: "Tu continues quand les autres s'effondrent. La douleur est un signal, pas un ordre.",
+    tags: ["physique", "survie"],
+    incompatible: ["fragile"],
+    hidden: { abilityMods: "+2 CON" }
+  },
+  {
+    id: 'acrobate',
+    name: "Acrobate",
+    value: +4,
+    desc: "Sauts, roulades, escalade — ton corps obéit sans hésitation.",
+    tags: ["agilité", "infiltration"],
+    incompatible: ["lourd"],
+    hidden: { abilityMods: "+2 DEX" }
+  },
+  {
+    id: 'tireur_embusque',
+    name: "Tireur d'élite",
+    value: +6,
+    desc: "À longue portée, tu es invisible et mortel. Une balle, un message.",
+    tags: ["précision", "furtif"],
+    incompatible: []
+  },
+  {
+    id: 'reflexes',
+    name: "Réflexes fulgurants",
+    value: +5,
+    desc: "Tu réagis avant de penser. Dans une embuscade, tu tires en premier.",
+    tags: ["combat", "initiative"],
+    incompatible: ["lent"],
+    hidden: { abilityMods: "+2 DEX" }
+  },
+  {
+    id: 'bagarreur',
+    name: "Bagarreur de cantina",
+    value: +3,
+    desc: "Les règles, c'est pour les autres. Tu mords, tu frappes, tu survis.",
+    tags: ["mêlée", "sale"],
+    incompatible: [],
+    hidden: { abilityMods: "+1 FOR" }
   },
 
-  // ---- DRAWBACKS ----
+  // ========================================
+  // FURTIVITÉ / INFILTRATION
+  // ========================================
+  {
+    id: 'ombre',
+    name: "Ombre vivante",
+    value: +6,
+    desc: "Tu te fonds dans l'environnement. Même les capteurs ont du mal à te trouver.",
+    tags: ["furtif", "infiltration"],
+    incompatible: ["voyant"]
+  },
+  {
+    id: 'imposteur',
+    name: "Imposteur parfait",
+    value: +6,
+    desc: "Tu deviens quelqu'un d'autre. Voix, posture, habitudes — tout y passe.",
+    tags: ["imposture", "infiltration"],
+    incompatible: ["connu"]
+  },
+  {
+    id: 'pickpocket',
+    name: "Doigts agiles",
+    value: +3,
+    desc: "Ce qui est dans ta poche était dans la leur. Ils n'ont rien vu.",
+    tags: ["larcin", "discrétion"],
+    incompatible: []
+  },
+  {
+    id: 'evasion',
+    name: "Maître de l'évasion",
+    value: +4,
+    desc: "Menottes, cellules, pièges — rien ne te retient longtemps.",
+    tags: ["évasion", "survie"],
+    incompatible: []
+  },
+
+  // ========================================
+  // SURVIE / TERRAIN
+  // ========================================
+  {
+    id: 'survivant',
+    name: "Survivant",
+    value: +4,
+    desc: "Tu as survécu à pire. Le désert, le vide, la jungle — rien ne te surprend.",
+    tags: ["survie", "terrain"],
+    incompatible: [],
+    hidden: { abilityMods: "+1 CON" }
+  },
+  {
+    id: 'pisteur',
+    name: "Pisteur",
+    value: +4,
+    desc: "Tu lis les traces comme d'autres lisent un datapad. Ta proie ne t'échappe pas.",
+    tags: ["traque", "perception"],
+    incompatible: [],
+    hidden: { abilityMods: "+1 SAG" }
+  },
+  {
+    id: 'premier_secours',
+    name: "Premiers secours",
+    value: +3,
+    desc: "Tu stabilises, tu sutures, tu sauves. Pas besoin d'hôpital quand tu es là.",
+    tags: ["médecine", "terrain"],
+    incompatible: []
+  },
+  {
+    id: 'frugal',
+    name: "Frugal",
+    value: +2,
+    desc: "Peu de ressources, beaucoup de résultats. Tu fais durer ce que d'autres gaspillent.",
+    tags: ["survie", "économe"],
+    incompatible: ["extravagant"]
+  },
+
+  // ========================================
+  // CHANCE / DESTIN
+  // ========================================
+  {
+    id: 'chance',
+    name: "Bonne étoile",
+    value: +4,
+    desc: "La chance te sourit. Les coups partent à côté, les portes s'ouvrent au bon moment.",
+    tags: ["chance", "destin"],
+    incompatible: ["malchance"]
+  },
+  {
+    id: 'bad_feeling',
+    name: "Mauvais pressentiment",
+    value: +3,
+    desc: "Tu sens les ennuis arriver. Une intuition qui t'a sauvé plus d'une fois.",
+    tags: ["intuition", "survie"],
+    incompatible: []
+  },
+
+  // ========================================
+  // FORCE-ADJACENT
+  // ========================================
+  {
+    id: 'sensible',
+    name: "Sensible à la Force",
+    value: +8,
+    desc: "La Force murmure en toi. Des intuitions, des pressentiments — rien de spectaculaire, mais assez.",
+    tags: ["Force", "potentiel"],
+    incompatible: ["vide_force"],
+    hidden: { abilityMods: "+1 SAG" }
+  },
+  {
+    id: 'instinct_force',
+    name: "Instinct de la Force",
+    value: +4,
+    desc: "Sans formation, tu ressens les émotions fortes, les dangers imminents, les mensonges.",
+    tags: ["Force", "perception"],
+    incompatible: ["vide_force"]
+  },
+
+  // ========================================
+  // DRAWBACKS (value < 0 = grants points)
+  // ========================================
+  
+  // --- Mental ---
   {
     id: 'impulsif',
     name: "Impulsif",
     value: -4,
-    desc: "Décisions trop rapides : tu t'exposes quand il faut temporiser.",
-    tags: ["caractère"],
-    incompatible: ["analytique"]
+    desc: "Tu décides trop vite. Quand il faut temporiser, tu fonces.",
+    tags: ["caractère", "défaut"],
+    incompatible: ["analytique"],
+    hidden: { abilityMods: "-2 SAG" }
+  },
+  {
+    id: 'confusion',
+    name: "Mémoire fragmentée",
+    value: -4,
+    desc: "Des trous, des flashs. Tu oublies parfois des choses importantes.",
+    tags: ["mental", "défaut"],
+    incompatible: ["memoire_eidetique"],
+    hidden: { abilityMods: "-1 INT" }
+  },
+  {
+    id: 'technophobe',
+    name: "Technophobe",
+    value: -4,
+    desc: "Les machines te détestent. Ou c'est toi qui les détestes. Dans tous les cas, ça finit mal.",
+    tags: ["technique", "défaut"],
+    incompatible: ["gearhead", "slicer_talent"]
+  },
+  {
+    id: 'naif',
+    name: "Naïf",
+    value: -3,
+    desc: "Tu fais confiance trop facilement. On t'a déjà eu, et ça arrivera encore.",
+    tags: ["social", "défaut"],
+    incompatible: ["manipulateur"],
+    hidden: { abilityMods: "-1 SAG" }
+  },
+
+  // --- Social ---
+  {
+    id: 'franc',
+    name: "Trop franc",
+    value: -3,
+    desc: "Tu dis ce que tu penses. La diplomatie, c'est pour les lâches.",
+    tags: ["social", "défaut"],
+    incompatible: ["manipulateur", "silver_tongue"]
+  },
+  {
+    id: 'effacement',
+    name: "Effacé",
+    value: -2,
+    desc: "On t'oublie facilement. Dans une foule, tu disparais — même quand tu ne veux pas.",
+    tags: ["social", "défaut"],
+    incompatible: ["charisme"],
+    hidden: { abilityMods: "-2 CHA" }
+  },
+  {
+    id: 'sociopathe',
+    name: "Détaché",
+    value: -4,
+    desc: "Les émotions des autres te laissent froid. Ça se voit, et ça dérange.",
+    tags: ["psy", "défaut"],
+    incompatible: ["empathique"],
+    hidden: { abilityMods: "-2 CHA" }
+  },
+  {
+    id: 'bègue',
+    name: "Bègue",
+    value: -3,
+    desc: "Sous pression, les mots se bloquent. Pas idéal pour négocier.",
+    tags: ["communication", "défaut"],
+    incompatible: ["silver_tongue"]
   },
   {
     id: 'surveillance',
     name: "Sous surveillance",
     value: -6,
-    desc: "Contrôles, audits, informateurs : tu laisses des traces.",
-    tags: ["intrigue"],
+    desc: "Contrôles, audits, informateurs. Tu laisses des traces, et quelqu'un les suit.",
+    tags: ["intrigue", "défaut"],
     incompatible: ["reseau"]
   },
+  {
+    id: 'connu',
+    name: "Visage connu",
+    value: -4,
+    desc: "Trop de gens te reconnaissent. L'anonymat, c'est fini pour toi.",
+    tags: ["notoriété", "défaut"],
+    incompatible: ["imposteur"]
+  },
+
+  // --- Combat / Physique ---
+  {
+    id: 'fragile',
+    name: "Constitution fragile",
+    value: -4,
+    desc: "Tu encaisses mal. Une blessure légère te cloue au sol.",
+    tags: ["physique", "défaut"],
+    incompatible: ["endurance", "martial_artist"],
+    hidden: { abilityMods: "-2 CON" }
+  },
+  {
+    id: 'lourd',
+    name: "Lourdaud",
+    value: -3,
+    desc: "L'agilité, ce n'est pas ton truc. Tu fais du bruit, tu renverses des trucs.",
+    tags: ["physique", "défaut"],
+    incompatible: ["acrobate"],
+    hidden: { abilityMods: "-2 DEX" }
+  },
+  {
+    id: 'lent',
+    name: "Réflexes lents",
+    value: -4,
+    desc: "Tu réagis après les autres. Dans une embuscade, tu es toujours surpris.",
+    tags: ["combat", "défaut"],
+    incompatible: ["reflexes"],
+    hidden: { abilityMods: "-2 DEX" }
+  },
+  {
+    id: 'aveugle',
+    name: "Aveugle",
+    value: -8,
+    desc: "Tu ne vois pas. Assistance techno ou allié requis pour compenser.",
+    tags: ["handicap", "majeur"],
+    incompatible: ["as_du_tir", "tireur_embusque"]
+  },
+
+  // --- Phobies / Traumas ---
   {
     id: 'trauma',
     name: "Traumatisé par la guerre",
     value: -6,
-    desc: "Sous chaos : panique, gel ou colère (selon la scène).",
-    tags: ["psy"],
+    desc: "Le chaos réveille des souvenirs. Panique, gel ou colère — selon la scène.",
+    tags: ["psy", "trauma"],
     incompatible: []
   },
   {
     id: 'phobie_espace',
     name: "Phobie de l'espace",
     value: -6,
-    desc: "Vide, EVA, dérive : tu perds tes moyens.",
-    tags: ["spatial"],
+    desc: "Le vide, l'EVA, la dérive. Tu perds tes moyens face à l'infini noir.",
+    tags: ["spatial", "phobie"],
     incompatible: ["pilotage"]
   },
   {
-    id: 'aveugle',
-    name: "Aveugle",
-    value: -8,
-    desc: "Handicap majeur : assistance techno ou allié requis.",
-    tags: ["handicap"],
-    incompatible: ["as_du_tir"]
+    id: 'claustrophobe',
+    name: "Claustrophobe",
+    value: -4,
+    desc: "Les espaces clos te paralysent. Conduits, cellules, cockpits étroits — cauchemar.",
+    tags: ["phobie", "défaut"],
+    incompatible: []
+  },
+  {
+    id: 'pyrophobe',
+    name: "Pyrophobe",
+    value: -3,
+    desc: "Le feu te terrorise. Même une bougie te met mal à l'aise.",
+    tags: ["phobie", "défaut"],
+    incompatible: []
+  },
+
+  // --- Réputation / Social ---
+  {
+    id: 'recherche',
+    name: "Recherché",
+    value: -6,
+    desc: "Quelqu'un veut ta tête. Prime, vengeance, ou justice — tu ne sais pas toujours.",
+    tags: ["criminel", "défaut"],
+    incompatible: []
+  },
+  {
+    id: 'dette',
+    name: "Endetté jusqu'au cou",
+    value: -4,
+    desc: "Tu dois des crédits. Beaucoup. Et tes créanciers ne sont pas patients.",
+    tags: ["argent", "défaut"],
+    incompatible: []
+  },
+  {
+    id: 'parjure',
+    name: "Parjure",
+    value: -4,
+    desc: "Tu as trahi quelqu'un d'important. Ils s'en souviennent, et toi aussi.",
+    tags: ["réputation", "défaut"],
+    incompatible: []
+  },
+  {
+    id: 'voyant',
+    name: "Voyant",
+    value: -3,
+    desc: "Tu ne sais pas passer inaperçu. Couleurs vives, attitude remarquable, voix forte.",
+    tags: ["style", "défaut"],
+    incompatible: ["ombre"]
+  },
+  {
+    id: 'extravagant',
+    name: "Extravagant",
+    value: -3,
+    desc: "Tu dépenses trop. Le confort, c'est non-négociable.",
+    tags: ["argent", "défaut"],
+    incompatible: ["frugal"]
+  },
+
+  // --- Addictions / Vices ---
+  {
+    id: 'addiction',
+    name: "Dépendance",
+    value: -5,
+    desc: "Une substance, un jeu, un comportement. Tu as besoin de ta dose.",
+    tags: ["vice", "défaut"],
+    incompatible: []
+  },
+  {
+    id: 'joueur',
+    name: "Joueur compulsif",
+    value: -4,
+    desc: "Les dés, les cartes, les paris. Tu ne peux pas résister à un pari.",
+    tags: ["vice", "argent"],
+    incompatible: []
+  },
+
+  // --- Divers ---
+  {
+    id: 'malchance',
+    name: "Poissard",
+    value: -4,
+    desc: "La malchance te colle. Les machines tombent en panne, les gens t'évitent.",
+    tags: ["malchance", "défaut"],
+    incompatible: ["chance"]
+  },
+  {
+    id: 'secret',
+    name: "Secret dangereux",
+    value: -5,
+    desc: "Tu sais quelque chose que tu ne devrais pas. Et quelqu'un le sait.",
+    tags: ["intrigue", "défaut"],
+    incompatible: []
+  },
+  {
+    id: 'vide_force',
+    name: "Vide dans la Force",
+    value: -2,
+    desc: "La Force ne te touche pas. Tu es invisible aux sensitifs — et ça les perturbe.",
+    tags: ["Force", "spécial"],
+    incompatible: ["sensible", "instinct_force"]
   },
 ];
 
