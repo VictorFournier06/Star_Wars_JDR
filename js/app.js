@@ -569,6 +569,7 @@ async function downloadFinalPNG() {
 // ⚠️ REPLACE THIS URL with your Google Apps Script Web App URL
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9TztCU58gCGQg2nV6jTaC8rWf8qLmUIO7tlei6u4AmGAfffJTWETY-DjAuEO_8q6V/exec';
 
+
 async function submitToGoogleSheets() {
   const btn = $('#submitBtn');
   const status = $('#submitStatus');
