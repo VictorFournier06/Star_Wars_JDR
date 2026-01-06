@@ -6,7 +6,7 @@
   <title>DATAPAD — Création de personnage</title>
   
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/main.css?v=20260106" />
+  <link rel="stylesheet" href="./css/main.css?v=20260106c" />
 </head>
 
 <body>
@@ -99,6 +99,10 @@
         <div class="grid2">
           <div class="panel">
             <div class="field">
+              <label for="playerName">Nom du joueur</label>
+              <input id="playerName" type="text" placeholder="Ton vrai prénom ou pseudo" />
+            </div>
+            <div class="field">
               <label for="codename">Nom de code</label>
               <input id="codename" type="text" placeholder="Ex : VELIN / K-17 / SABLE" />
             </div>
@@ -185,10 +189,12 @@
               <h2 style="font-size:13px">Exporter</h2>
               <span class="chip">image</span>
             </div>
-            <p class="hint" style="margin-top:0">Télécharge une image PNG du dossier final.</p>
+            <p class="hint" style="margin-top:0">Télécharge une image PNG ou envoie ton personnage au MJ.</p>
             <div class="footer-actions">
               <button class="btn" id="saveBtn">Télécharger l'image</button>
+              <button class="btn btn-submit" id="submitBtn">Envoyer au MJ</button>
             </div>
+            <p class="hint submit-status" id="submitStatus" style="margin-top:8px; display:none;"></p>
           </div>
         </div>
       </section>
@@ -197,10 +203,10 @@
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="./js/data.js?v=20260106b"></script>
-  <script src="./js/utils.js?v=20260106b"></script>
-  <script src="./js/tooltip.js?v=20260106b"></script>
-  <script src="./js/effects.js?v=20260106b"></script>
-  <script src="./js/app.js?v=20260106b"></script>
+  <script src="./js/data.js?v=20260106c"></script>
+  <script src="./js/utils.js?v=20260106c"></script>
+  <script src="./js/tooltip.js?v=20260106c"></script>
+  <script src="./js/effects.js?v=20260106c"></script>
+  <script src="./js/app.js?v=20260106c"></script>
 </body>
 </html>
