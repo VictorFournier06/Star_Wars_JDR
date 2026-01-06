@@ -563,6 +563,85 @@ async function downloadFinalPNG() {
 }
 
 // =============================================================================
+// GOOGLE SHEETS SUBMISSION
+// =============================================================================
+
+// ⚠️ REPLACE THIS URL with your Google Apps Script Web App URL
+const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+async function submitToGoogleSheets() {
+  const btn = $('#submitBtn');
+  const status = $('#submitStatus');
+  
+  // Validate required fields
+  const playerName = $('#playerName')?.value?.trim() || '';
+  const codename = $('#codename')?.value?.trim() || '';
+  
+  if (!playerName) {
+    showSubmitStatus('error', '❌ Entre ton nom de joueur dans l\'onglet Identité');
+    return;
+  }
+  
+  if (!codename) {
+    showSubmitStatus('error', '❌ Entre un nom de code pour ton personnage');
+    return;
+  }
+  
+  if (totalPoints() < 0) {
+    showSubmitStatus('error', '❌ Personnage invalide : points négatifs');
+    return;
+  }
+  
+  // Disable button during submission
+  btn.disabled = true;
+  btn.textContent = 'Envoi...';
+  showSubmitStatus('', '⏳ Transmission en cours...');
+  
+  try {
+    const payload = buildSavePayload();
+    payload.playerName = playerName;
+    payload.submittedAt = new Date().toISOString();
+    
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Required for Google Apps Script
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    
+    // With no-cors, we can't read the response, but if no error was thrown, it likely worked
+    showSubmitStatus('success', '✅ Personnage envoyé au MJ !');
+    btn.classList.add('success');
+    btn.textContent = 'Envoyé ✓';
+    AudioManager.playSelect();
+    
+    // Re-enable after delay
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.classList.remove('success');
+      btn.textContent = 'Envoyer au MJ';
+    }, 5000);
+    
+  } catch (error) {
+    console.error('Submission error:', error);
+    showSubmitStatus('error', '❌ Erreur de connexion. Réessaie.');
+    btn.disabled = false;
+    btn.textContent = 'Envoyer au MJ';
+  }
+}
+
+function showSubmitStatus(type, message) {
+  const status = $('#submitStatus');
+  if (!status) return;
+  
+  status.textContent = message;
+  status.className = 'hint submit-status' + (type ? ` ${type}` : '');
+  status.style.display = message ? 'block' : 'none';
+}
+
+// =============================================================================
 // RESET
 // =============================================================================
 function resetAll() {
@@ -571,6 +650,7 @@ function resetAll() {
   state.speciesId = null;
   
   $('#traitSearch').value = '';
+  $('#playerName').value = '';
   $('#codename').value = '';
   $('#concept').value = '';
   $('#notes').value = '';
@@ -673,6 +753,7 @@ function init() {
   $('#resetBtn').addEventListener('click', resetAll);
   $('#traitSearch').addEventListener('input', () => renderTraits($('#traitSearch').value));
   $('#saveBtn')?.addEventListener('click', downloadFinalPNG);
+  $('#submitBtn')?.addEventListener('click', submitToGoogleSheets);
   
   // Initialize custom dropdowns
   document.querySelectorAll('.custom-select').forEach(initCustomSelect);
