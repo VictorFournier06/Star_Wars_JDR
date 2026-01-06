@@ -6,7 +6,7 @@
   <title>DATAPAD — Création de personnage</title>
   
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/main.css?v=20260106c" />
+  <link rel="stylesheet" href="./css/main.css?v=20260106i" />
 </head>
 
 <body>
@@ -89,10 +89,49 @@
         </div>
       </section>
 
-      <!-- Page 4: Identité -->
+      <!-- Page 4: Morale -->
       <section class="page" data-page="3">
         <div class="headline">
-          <h2>4 — Identité</h2>
+          <h2>4 — Morale</h2>
+          <span class="chip amber">Leviers MJ</span>
+        </div>
+        <p class="hint">Trois choix rapides qui définissent ta boussole morale. Pas de jugement : ce sont des <b>outils narratifs</b> pour le MJ.</p>
+        
+        <div class="grid3">
+          <!-- Doctrine -->
+          <div class="panel morale-panel">
+            <h3 class="panel-title">Doctrine</h3>
+            <p class="hint">Pourquoi tu te bats ?</p>
+            <div class="morale-options" id="doctrineList"></div>
+          </div>
+          
+          <!-- Méthodes -->
+          <div class="panel morale-panel methodes-panel">
+            <h3 class="panel-title">Méthodes</h3>
+            <p class="hint">Comment tu opères ? <span class="muted">— Du plus propre au plus sale.</span></p>
+            <div class="methodes-wrapper">
+              <div class="morale-options methodes" id="methodesList"></div>
+              <div class="methodes-spectrum">
+                <span class="spec-light"></span>
+                <span class="spec-gray"></span>
+                <span class="spec-dark"></span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Ligne rouge -->
+          <div class="panel morale-panel lignes-panel">
+            <h3 class="panel-title">Lignes rouges</h3>
+            <p class="hint">Ce que tu refuses absolument ? <span class="muted">— Choisis autant que tu veux.</span></p>
+            <div class="morale-options lignes" id="lignesList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 5: Identité -->
+      <section class="page" data-page="4">
+        <div class="headline">
+          <h2>5 — Identité</h2>
           <span class="chip amber">Dossier</span>
         </div>
         <p class="hint">Tu verrouilles l'essentiel. Pas de roman : une identité jouable en 30 secondes.</p>
@@ -145,10 +184,10 @@
         </div>
       </section>
 
-      <!-- Page 5: Dossier final -->
-      <section class="page" data-page="4" id="finalPage">
+      <!-- Page 6: Dossier final -->
+      <section class="page" data-page="5" id="finalPage">
         <div class="headline">
-          <h2>5 — Dossier final</h2>
+          <h2>6 — Dossier final</h2>
           <span class="chip" id="statusChip">En cours</span>
         </div>
         <p class="hint">Cette page révèle les informations mécaniques. Si tes <b>points restants ≥ 0</b>, ton personnage est jouable.</p>
@@ -203,10 +242,10 @@
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="./js/data.js?v=20260106c"></script>
-  <script src="./js/utils.js?v=20260106c"></script>
-  <script src="./js/tooltip.js?v=20260106c"></script>
-  <script src="./js/effects.js?v=20260106c"></script>
-  <script src="./js/app.js?v=20260106c"></script>
+  <script src="./js/data.js?v=20260106f"></script>
+  <script src="./js/utils.js?v=20260106f"></script>
+  <script src="./js/tooltip.js?v=20260106f"></script>
+  <script src="./js/effects.js?v=20260106f"></script>
+  <script src="./js/app.js?v=20260106f"></script>
 </body>
 </html>

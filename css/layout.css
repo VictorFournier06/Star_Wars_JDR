@@ -78,6 +78,14 @@
   .grid2 { grid-template-columns: 1fr 1fr; }
 }
 
+.grid3 {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+/* grid3 stays single column - vertical stacking */
+
 /* --------------------------------------------------------------------------
    SUMMARY & LISTS
    -------------------------------------------------------------------------- */

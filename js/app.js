@@ -12,6 +12,10 @@ const state = {
   speciesId: null,
   professionId: null,
   selectedTraits: new Set(),
+  // Morale
+  doctrineId: null,
+  methodeId: null,
+  lignesRouges: new Set(),
 };
 
 // =============================================================================
@@ -144,7 +148,7 @@ function goTo(i) {
   $('#prevBtn').disabled = state.page === 0;
   $('#nextBtn').disabled = state.page === PAGE_NAMES.length - 1;
 
-  if (state.page === 4) renderSummary();
+  if (state.page === 5) renderSummary();
   
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -401,6 +405,136 @@ function renderTraits(filterText = '') {
   setTotalUI();
 }
 
+// =============================================================================
+// MORALE RENDER FUNCTIONS
+// =============================================================================
+function renderDoctrines() {
+  const host = $('#doctrineList');
+  if (!host) return;
+  host.innerHTML = '';
+
+  DOCTRINES.forEach(d => {
+    const option = document.createElement('div');
+    const isSelected = state.doctrineId === d.id;
+    option.className = 'morale-option' + (isSelected ? ' active' : '');
+    option.setAttribute('role', 'button');
+    option.setAttribute('data-id', d.id);
+    option.tabIndex = 0;
+
+    option.innerHTML = `
+      <span class="morale-name">${d.name}</span>
+      <span class="morale-desc">${d.desc}</span>
+    `;
+
+    const selectIt = () => {
+      state.doctrineId = d.id;
+      updateDoctrineSelection();
+      AudioManager.playSelect();
+    };
+
+    option.addEventListener('click', selectIt);
+    option.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectIt();
+      }
+    });
+
+    host.appendChild(option);
+  });
+}
+
+function updateDoctrineSelection() {
+  $$('#doctrineList .morale-option').forEach(opt => {
+    const isSelected = opt.dataset.id === state.doctrineId;
+    opt.classList.toggle('active', isSelected);
+  });
+}
+
+function renderMethodes() {
+  const host = $('#methodesList');
+  if (!host) return;
+  host.innerHTML = '';
+
+  METHODES.forEach(m => {
+    const option = document.createElement('div');
+    const isSelected = state.methodeId === m.id;
+    option.className = 'morale-option methode' + (isSelected ? ' active' : '');
+    option.setAttribute('role', 'button');
+    option.setAttribute('data-id', m.id);
+    option.tabIndex = 0;
+
+    option.innerHTML = `
+      <span class="methode-icon">${m.icon}</span>
+      <span class="morale-name">${m.name}</span>
+      <span class="morale-desc">${m.desc}</span>
+    `;
+
+    const selectIt = () => {
+      state.methodeId = m.id;
+      updateMethodeSelection();
+      AudioManager.playSelect();
+    };
+
+    option.addEventListener('click', selectIt);
+    option.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectIt();
+      }
+    });
+
+    host.appendChild(option);
+  });
+}
+
+function updateMethodeSelection() {
+  $$('#methodesList .morale-option').forEach(opt => {
+    const isSelected = opt.dataset.id === state.methodeId;
+    opt.classList.toggle('active', isSelected);
+  });
+}
+
+function renderLignesRouges() {
+  const host = $('#lignesList');
+  if (!host) return;
+  host.innerHTML = '';
+
+  LIGNES_ROUGES.forEach(l => {
+    const option = document.createElement('div');
+    const isSelected = state.lignesRouges.has(l.id);
+    option.className = 'morale-option ligne' + (isSelected ? ' active' : '');
+    option.setAttribute('role', 'button');
+    option.setAttribute('data-id', l.id);
+    option.tabIndex = 0;
+
+    option.innerHTML = `
+      <span class="ligne-check">${isSelected ? '✕' : '○'}</span>
+      <span class="morale-name">${l.name}</span>
+    `;
+
+    const toggleIt = () => {
+      if (state.lignesRouges.has(l.id)) {
+        state.lignesRouges.delete(l.id);
+      } else {
+        state.lignesRouges.add(l.id);
+      }
+      renderLignesRouges();
+      AudioManager.playSelect();
+    };
+
+    option.addEventListener('click', toggleIt);
+    option.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleIt();
+      }
+    });
+
+    host.appendChild(option);
+  });
+}
+
 function renderStats() {
   const grid = $('#statsGrid');
   if (!grid) return;
@@ -473,6 +607,18 @@ function renderSummary() {
     ? tList.map(t => `${t.name} (${traitPoints(t) >= 0 ? '+' : ''}${traitPoints(t)})`).join(' — ')
     : '—';
   add('Traits', traitText);
+
+  // Morale summary
+  const doctrine = DOCTRINES.find(d => d.id === state.doctrineId);
+  const methode = METHODES.find(m => m.id === state.methodeId);
+  const lignes = Array.from(state.lignesRouges)
+    .map(id => LIGNES_ROUGES.find(l => l.id === id)?.name)
+    .filter(Boolean);
+  
+  add('Doctrine', doctrine?.name);
+  add('Méthodes', methode?.name);
+  add('Lignes rouges', lignes.length ? lignes.join(', ') : '—');
+
   add('Points restants', String(totalPoints()));
 
   renderStats();
@@ -488,8 +634,15 @@ function buildSavePayload() {
   const p = profession();
   const skills = [...new Set([...(s?.hidden?.skills || []), ...(p?.hidden?.skills || [])])];
   
+  // Resolve morale choices
+  const doctrine = DOCTRINES.find(d => d.id === state.doctrineId);
+  const methode = METHODES.find(m => m.id === state.methodeId);
+  const lignes = Array.from(state.lignesRouges)
+    .map(id => LIGNES_ROUGES.find(l => l.id === id))
+    .filter(Boolean);
+  
   return {
-    version: 'v0.5',
+    version: 'v0.6',
     codename: $('#codename')?.value || '',
     concept: $('#concept')?.value || '',
     notes: $('#notes')?.value || '',
@@ -497,6 +650,10 @@ function buildSavePayload() {
     speciesId: state.speciesId,
     professionId: state.professionId,
     selectedTraits: Array.from(state.selectedTraits),
+    // Morale
+    doctrineId: state.doctrineId,
+    methodeId: state.methodeId,
+    lignesRouges: Array.from(state.lignesRouges),
     pointsRemaining: totalPoints(),
     stats: Object.fromEntries(STATS.map(st => [st.id, Number($(`#${st.id}`)?.value || 0)])),
     resolved: {
@@ -506,14 +663,18 @@ function buildSavePayload() {
       traits: Array.from(state.selectedTraits)
         .map(id => traitById(id))
         .filter(Boolean)
-        .map(t => ({ id: t.id, name: t.name, points: traitPoints(t) }))
+        .map(t => ({ id: t.id, name: t.name, points: traitPoints(t) })),
+      // Morale resolved
+      doctrine: doctrine?.name || null,
+      methode: methode?.name || null,
+      lignesRouges: lignes.map(l => l.name)
     }
   };
 }
 
 async function downloadFinalPNG() {
-  if (state.page !== 4) {
-    goTo(4);
+  if (state.page !== 5) {
+    goTo(5);
     await new Promise(r => setTimeout(r, 220));
   }
   
@@ -649,6 +810,10 @@ function resetAll() {
   state.selectedTraits.clear();
   state.professionId = null;
   state.speciesId = null;
+  // Reset morale
+  state.doctrineId = null;
+  state.methodeId = null;
+  state.lignesRouges.clear();
   
   $('#traitSearch').value = '';
   $('#playerName').value = '';
@@ -674,6 +839,9 @@ function resetAll() {
   renderSpecies();
   renderProfessions();
   renderTraits('');
+  renderDoctrines();
+  renderMethodes();
+  renderLignesRouges();
   setTotalUI();
 }
 
@@ -747,6 +915,10 @@ function init() {
   renderSpecies();
   renderProfessions();
   renderTraits('');
+  // Morale
+  renderDoctrines();
+  renderMethodes();
+  renderLignesRouges();
   setTotalUI();
 
   $('#prevBtn').addEventListener('click', () => goTo(state.page - 1));

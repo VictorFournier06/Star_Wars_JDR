@@ -1495,8 +1495,40 @@ const PAGE_NAMES = [
   "Espèce",
   "Profession",
   "Traits",
+  "Morale",
   "Identité",
   "Dossier final"
+];
+
+// =============================================================================
+// MORALE OPTIONS
+// =============================================================================
+const DOCTRINES = [
+  { id: 'idealiste', name: 'Idéaliste', desc: 'Tu crois en une cause plus grande que toi.' },
+  { id: 'patriote', name: 'Patriote', desc: 'Ta loyauté va à ton peuple ou ta nation.' },
+  { id: 'pragmatique', name: 'Pragmatique', desc: 'Tu fais ce qui fonctionne, point.' },
+  { id: 'opportuniste', name: 'Opportuniste', desc: 'Chaque situation a un avantage à saisir.' },
+  { id: 'vengeur', name: 'Vengeur', desc: 'Quelqu\'un doit payer. Tu t\'en assures.' },
+  { id: 'survivant', name: 'Survivant', desc: 'Rester en vie est la seule victoire.' },
+  { id: 'fanatique', name: 'Fanatique', desc: 'Ta conviction ne tolère aucun doute.' },
+  { id: 'professionnel', name: 'Professionnel', desc: 'C\'est un métier. Tu l\'exerces avec rigueur.' },
+];
+
+const METHODES = [
+  { id: 'propre', name: 'Propre', desc: 'Preuves, procédures, légalité. Tu respectes les règles.', icon: '◇' },
+  { id: 'grise', name: 'Grise', desc: 'Chantage, deals, zones floues. La fin justifie certains moyens.', icon: '◈' },
+  { id: 'sale', name: 'Sale', desc: 'Menaces, dommages collatéraux. Tu fais le nécessaire.', icon: '◆' },
+];
+
+const LIGNES_ROUGES = [
+  { id: 'torture', name: 'Torture', desc: 'Jamais de souffrance infligée délibérément.' },
+  { id: 'civils', name: 'Dommages collatéraux', desc: 'Pas de victimes innocentes dans l\'équation.' },
+  { id: 'trahison', name: 'Trahison d\'alliés', desc: 'On ne retourne pas sa veste.' },
+  { id: 'assassinat', name: 'Assassinat politique', desc: 'Pas d\'élimination ciblée de leaders.' },
+  { id: 'meurtre', name: 'Meurtre de sang-froid', desc: 'Pas d\'exécution sans nécessité.' },
+  { id: 'enfants', name: 'Impliquer des enfants', desc: 'Les enfants ne sont jamais des outils.' },
+  { id: 'genocide', name: 'Génocide', desc: 'Aucune extermination de masse.' },
+  { id: 'esclavage', name: 'Esclavage', desc: 'Personne n\'est une propriété.' },
 ];
 
 // =============================================================================
