@@ -1,0 +1,31 @@
+/* ==========================================================================
+   STAR WARS CHARACTER CREATOR - CSS VARIABLES (THEME)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  /* Colors */
+  --bg: #04060B;
+  --ink: #EAF1FF;
+  --muted: #A9B7D6;
+  --line: #22335C;
+  --glow: #7FD1FF;
+  --amber: #F2C14E;
+  --danger: #FF6B6B;
+  --ok: #67E8A3;
+
+  /* Assets */
+  --bg-img: url('../assets/background_space.png');
+  --logo-img: url('../assets/logo_eternal_empire.png');
+
+  /* Typography */
+  --title: 'Orbitron', system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  --body: 'Rajdhani', system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Spacing & Effects */
+  --radius: 18px;
+  --shadow: 0 26px 90px rgba(0, 0, 0, 0.65);
+  --page-padding: 24px 20px 28px;
+}

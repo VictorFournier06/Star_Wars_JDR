@@ -406,6 +406,7 @@ function renderStats() {
     const field = document.createElement('div');
     field.className = 'field';
     
+    // Display stat abbreviation with modifier indicator
     const modSign = stat.mod >= 0 ? '+' : '';
     const modDisplay = stat.mod !== 0 
       ? ` <span class="stat-mod ${stat.mod > 0 ? 'pos' : 'neg'}">(${modSign}${stat.mod})</span>` 
@@ -569,6 +570,15 @@ function resetAll() {
   $('#notes').value = '';
   $('#aff').value = '';
   
+  // Reset custom dropdown
+  const affSelect = document.getElementById('affSelect');
+  if (affSelect) {
+    const valueDisplay = affSelect.querySelector('.custom-select-value');
+    const options = affSelect.querySelectorAll('.custom-select-option');
+    if (valueDisplay) valueDisplay.textContent = '— Choisis —';
+    options.forEach(o => o.classList.remove('selected'));
+  }
+  
   STATS.forEach(stat => {
     const el = $(`#${stat.id}`);
     if (el) el.value = 0;
@@ -578,6 +588,65 @@ function resetAll() {
   renderProfessions();
   renderTraits('');
   setTotalUI();
+}
+
+// =============================================================================
+// CUSTOM DROPDOWN
+// =============================================================================
+function initCustomSelect(selectEl) {
+  const trigger = selectEl.querySelector('.custom-select-trigger');
+  const valueDisplay = selectEl.querySelector('.custom-select-value');
+  const options = selectEl.querySelectorAll('.custom-select-option');
+  const hiddenInput = selectEl.querySelector('input[type="hidden"]');
+  
+  // Toggle dropdown
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    // Close other dropdowns
+    document.querySelectorAll('.custom-select.open').forEach(s => {
+      if (s !== selectEl) s.classList.remove('open');
+    });
+    selectEl.classList.toggle('open');
+  });
+  
+  // Keyboard navigation
+  trigger.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      selectEl.classList.toggle('open');
+    } else if (e.key === 'Escape') {
+      selectEl.classList.remove('open');
+    }
+  });
+  
+  // Option selection
+  options.forEach(option => {
+    option.addEventListener('click', () => {
+      const value = option.dataset.value;
+      const text = option.textContent.trim();
+      
+      // Update display
+      valueDisplay.textContent = text;
+      hiddenInput.value = value;
+      
+      // Update selected state
+      options.forEach(o => o.classList.remove('selected'));
+      option.classList.add('selected');
+      
+      // Close dropdown
+      selectEl.classList.remove('open');
+      
+      // Dispatch change event for compatibility
+      hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
+  
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!selectEl.contains(e.target)) {
+      selectEl.classList.remove('open');
+    }
+  });
 }
 
 // =============================================================================
@@ -595,6 +664,9 @@ function init() {
   $('#resetBtn').addEventListener('click', resetAll);
   $('#traitSearch').addEventListener('input', () => renderTraits($('#traitSearch').value));
   $('#saveBtn')?.addEventListener('click', downloadFinalPNG);
+  
+  // Initialize custom dropdowns
+  document.querySelectorAll('.custom-select').forEach(initCustomSelect);
 
   goTo(0);
   

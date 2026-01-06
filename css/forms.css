@@ -1,0 +1,291 @@
+/* ==========================================================================
+   STAR WARS CHARACTER CREATOR - FORM ELEMENTS & INPUTS
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   FORM ELEMENTS
+   -------------------------------------------------------------------------- */
+.field {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stat-mod {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.stat-mod.pos {
+  color: var(--ok);
+}
+
+.stat-mod.neg {
+  color: var(--danger);
+}
+
+input[type="text"],
+textarea,
+select {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(34, 51, 92, 0.75);
+  background: rgba(0, 0, 0, 0.20);
+  color: var(--ink);
+  padding: 10px 12px;
+  font-family: var(--body);
+  font-size: 16px;
+  outline: none;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+select {
+  color-scheme: dark;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+select:hover {
+  border-color: rgba(127, 209, 255, 0.45);
+}
+
+select:focus {
+  border-color: rgba(127, 209, 255, 0.65);
+  box-shadow: 0 0 0 2px rgba(127, 209, 255, 0.15), 0 0 20px rgba(127, 209, 255, 0.1);
+}
+
+option {
+  background: #0B1328;
+  color: var(--ink);
+  padding: 10px;
+}
+
+option:hover,
+option:focus,
+option:checked {
+  background: linear-gradient(90deg, rgba(127, 209, 255, 0.2), rgba(127, 209, 255, 0.05));
+  color: var(--glow);
+}
+
+input[type="number"] {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(34, 51, 92, 0.75);
+  background: rgba(0, 0, 0, 0.20);
+  color: var(--ink);
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 15px;
+  outline: none;
+  /* Hide spinner arrows */
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Hide spinner arrows in WebKit browsers */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Readonly stat inputs */
+.readonly-stat {
+  cursor: default;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(34, 51, 92, 0.5) !important;
+  color: var(--ink);
+  pointer-events: none;
+}
+
+.readonly-stat:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
+   CHIPS / BADGES
+   -------------------------------------------------------------------------- */
+.chip {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 51, 92, 0.78);
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.14);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip.pos {
+  border-color: rgba(103, 232, 163, 0.35);
+  color: rgba(103, 232, 163, 0.95);
+}
+
+.chip.neg {
+  border-color: rgba(255, 107, 107, 0.35);
+  color: rgba(255, 107, 107, 0.95);
+}
+
+.chip.amber {
+  border-color: rgba(242, 193, 78, 0.35);
+  color: rgba(242, 193, 78, 0.95);
+}
+
+.chip.wrap {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.2;
+}
+
+/* --------------------------------------------------------------------------
+   CUSTOM DROPDOWN SELECT
+   -------------------------------------------------------------------------- */
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(34, 51, 92, 0.75);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  user-select: none;
+}
+
+.custom-select-trigger:hover {
+  border-color: rgba(127, 209, 255, 0.45);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.custom-select-trigger:focus {
+  outline: none;
+  border-color: rgba(127, 209, 255, 0.65);
+  box-shadow: 0 0 0 2px rgba(127, 209, 255, 0.15), 0 0 20px rgba(127, 209, 255, 0.1);
+}
+
+.custom-select.open .custom-select-trigger {
+  border-color: rgba(127, 209, 255, 0.65);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.custom-select-value {
+  font-family: var(--body);
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.custom-select-arrow {
+  font-size: 10px;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+}
+
+.custom-select.open .custom-select-arrow {
+  transform: rotate(180deg);
+}
+
+.custom-select-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, rgba(10, 15, 28, 0.98), rgba(15, 22, 40, 0.96));
+  border: 1px solid rgba(127, 209, 255, 0.45);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  overflow: hidden;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.custom-select.open .custom-select-options {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.custom-select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  font-family: var(--body);
+  font-size: 16px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  border-bottom: 1px solid rgba(34, 51, 92, 0.4);
+}
+
+.custom-select-option:last-child {
+  border-bottom: none;
+}
+
+.custom-select-option:hover {
+  background: rgba(127, 209, 255, 0.12);
+  color: var(--glow);
+}
+
+.custom-select-option.selected {
+  background: rgba(127, 209, 255, 0.18);
+  color: var(--glow);
+}
+
+/* Faction icons */
+.option-icon {
+  font-size: 10px;
+  width: 16px;
+  text-align: center;
+}
+
+.option-icon.republic {
+  color: #64B4FF;
+  text-shadow: 0 0 8px rgba(100, 180, 255, 0.8);
+}
+
+.option-icon.sith {
+  color: #FF5050;
+  text-shadow: 0 0 8px rgba(255, 80, 80, 0.8);
+}
+
+.option-icon.neutral {
+  color: var(--amber);
+  text-shadow: 0 0 8px rgba(242, 193, 78, 0.8);
+}
+
+.option-icon.double {
+  color: #B080FF;
+  text-shadow: 0 0 8px rgba(176, 128, 255, 0.8);
+}

@@ -1,0 +1,135 @@
+/* ==========================================================================
+   STAR WARS CHARACTER CREATOR - LAYOUT
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   LAYOUT WRAPPER
+   -------------------------------------------------------------------------- */
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 18px 16px 80px;
+  position: relative;
+}
+
+/* --------------------------------------------------------------------------
+   MAIN SHELL
+   -------------------------------------------------------------------------- */
+.shell {
+  margin-top: 14px;
+  border: 1px solid rgba(34, 51, 92, 0.92);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(10, 19, 38, 0.78), rgba(11, 16, 32, 0.58));
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  position: relative;
+  min-height: 64vh;
+}
+
+.shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(800px 220px at 15% 0%, rgba(127, 209, 255, 0.10), rgba(0, 0, 0, 0) 55%),
+    radial-gradient(800px 220px at 85% 0%, rgba(242, 193, 78, 0.07), rgba(0, 0, 0, 0) 55%);
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   PAGE CONTENT
+   -------------------------------------------------------------------------- */
+.page {
+  position: relative;
+  padding: var(--page-padding);
+  display: none;
+}
+
+.page > .panel { margin-top: 18px; }
+.page > .grid2 { margin-top: 18px; }
+.page > .summary { margin-top: 18px; }
+
+/* Fix text spacing within pages */
+.page .hint {
+  margin: 12px 0 0;
+}
+
+.page.active {
+  display: block;
+  animation: pageIn 0.18s ease-out;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --------------------------------------------------------------------------
+   GRID LAYOUT
+   -------------------------------------------------------------------------- */
+.grid2 {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+@media (min-width: 920px) {
+  .grid2 { grid-template-columns: 1fr 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   SUMMARY & LISTS
+   -------------------------------------------------------------------------- */
+.summary {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------------------
+   HEADLINE & HINT
+   -------------------------------------------------------------------------- */
+.headline {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.headline h2 {
+  margin: 0;
+  font-family: var(--title);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 15px;
+}
+
+.hint {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 75ch;
+}
+
+/* --------------------------------------------------------------------------
+   PANELS
+   -------------------------------------------------------------------------- */
+.panel {
+  border: 1px solid rgba(34, 51, 92, 0.75);
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.16);
+  padding: 14px;
+  max-width: 100%;
+  overflow: visible;
+}

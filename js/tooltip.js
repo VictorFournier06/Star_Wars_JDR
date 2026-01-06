@@ -1,42 +1,20 @@
 /**
  * STAR WARS CHARACTER CREATOR - TOOLTIP SYSTEM
+ * 
+ * Architecture:
+ * - Tooltip container uses position: absolute with page coordinates
+ * - SVG connector is inside the tooltip, using relative coordinates
+ * - Everything is computed once on mouseenter based on bounding boxes
+ * - Everything scrolls together naturally since it's all absolute positioned
  */
 
 // Species descriptions loaded from JSON
 let speciesDescriptions = {};
 
-// Fallback descriptions for local file:// protocol
-const FALLBACK_DESCRIPTIONS = {
-  "humain": "Les Humains dominent les Mondes du Noyau et peuvent être trouvés dans pratiquement chaque coin de la galaxie.",
-  "twilek": "Les Twi'leks sont une espèce humanoïde originaire de Ryloth. Leurs lekku sont des organes sensoriels.",
-  "zabrak": "Les Zabraks sont une espèce fière et indépendante, reconnaissable à leurs cornes crâniennes distinctives.",
-  "miraluka": "Les Miraluka n'ont pas d'yeux, mais peuvent «voir» en utilisant la Force.",
-  "chiss": "Les Chiss sont technologiquement avancés, originaires du monde glacial de Csilla.",
-  "rattataki": "Les Rattataki sont une espèce à la peau pâle, naturellement résistants et combatifs.",
-  "cathar": "Les Cathar sont des humanoïdes félins connus pour leur férocité au combat.",
-  "togruta": "Les Togrutas sont des chasseurs de meute naturels avec des cornes et lekkus distinctifs.",
-  "wookiee": "Les Wookiees sont l'une des espèces les plus fortes de la galaxie.",
-  "trandoshan": "Les Trandoshans reptiliens sont connus pour leur grande force.",
-  "nautolan": "Les Nautolans sont une espèce aquatique de Glee Anselm.",
-  "mirialan": "Les Mirialans sont reconnaissables à leurs tatouages géométriques traditionnels.",
-  "rodian": "Les Rodians sont une espèce reptilienne originaire de Rodia.",
-  "duros": "Les Duros sont l'une des premières espèces à avoir développé le voyage interstellaire.",
-  "bothan": "Les Bothans sont réputés pour leur réseau d'espionnage galactique.",
-  "sith_pureblood": "Les Sith de sang-pur sont les descendants de l'ancienne espèce Sith.",
-  "droide": "Les droïdes sont des êtres mécaniques créés pour servir diverses fonctions."
-};
-
 /**
- * Load species descriptions from JSON file with fallback
+ * Load species descriptions from JSON file
  */
 function loadSpeciesDescriptions() {
-  // Check if we're on file:// protocol (local)
-  if (window.location.protocol === 'file:') {
-    console.log('Local file protocol detected, using fallback descriptions');
-    speciesDescriptions = FALLBACK_DESCRIPTIONS;
-    return;
-  }
-  
   const paths = [
     './js/species_descriptions.json',
     'js/species_descriptions.json',
@@ -54,11 +32,10 @@ function loadSpeciesDescriptions() {
           return;
         }
       } catch (e) {
-        // Try next path
+        console.warn(`Failed to load from ${path}:`, e.message);
       }
     }
-    console.warn('Failed to load descriptions from server, using fallback');
-    speciesDescriptions = FALLBACK_DESCRIPTIONS;
+    console.warn('Could not load species descriptions from any path');
   }
   
   tryLoadFromPaths();
@@ -100,16 +77,130 @@ function showSpeciesTooltip(speciesId, anchorEl) {
     anchorEl.appendChild(hoverDot);
   }
   
+  // Wait for dot to render, then compute positions
+  requestAnimationFrame(() => {
+    createAndPositionTooltip(species, description, imgId, anchorEl, hoverDot);
+  });
+}
+
+/**
+ * Create and position the tooltip based on dot position
+ */
+function createAndPositionTooltip(species, description, imgId, anchorEl, hoverDot) {
+  // Get dot position in PAGE coordinates (absolute, includes scroll)
+  const dotRect = hoverDot.getBoundingClientRect();
+  const scrollX = window.scrollX || window.pageXOffset || 0;
+  const scrollY = window.scrollY || window.pageYOffset || 0;
+  
+  const dotPageX = dotRect.left + scrollX + dotRect.width / 2;
+  const dotPageY = dotRect.top + scrollY + dotRect.height / 2;
+  
+  // Viewport info
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  
+  // Determine which side: dot on right half → tooltip on left, and vice versa
+  const dotViewportX = dotRect.left + dotRect.width / 2;
+  const isLeftSide = dotViewportX > vw / 2;
+  
+  if (isLeftSide) {
+    hoverDot.classList.add('left-side');
+  }
+  
+  // Panel dimensions
+  const panelWidth = 420;
+  const panelHeight = 400; // Approximate
+  
+  // Calculate tooltip panel position in PAGE coordinates
+  // Tooltip appears at viewport center vertically, offset horizontally
+  const viewportCenterY = vh / 2;
+  const margin = 60;
+  
+  let panelPageX, panelPageY;
+  
+  if (isLeftSide) {
+    // Tooltip on left side of screen
+    panelPageX = (vw / 2 - panelWidth / 2 - margin) + scrollX;
+  } else {
+    // Tooltip on right side of screen
+    panelPageX = (vw / 2 - panelWidth / 2 + margin) + scrollX;
+  }
+  panelPageY = viewportCenterY + scrollY - panelHeight / 2;
+  
+  // Calculate connector line coordinates (relative to tooltip container)
+  // Container will be positioned at the top-left of the entire bounding area
+  const minX = Math.min(dotPageX, panelPageX, panelPageX + panelWidth);
+  const maxX = Math.max(dotPageX, panelPageX, panelPageX + panelWidth);
+  const minY = Math.min(dotPageY, panelPageY, panelPageY + panelHeight);
+  const maxY = Math.max(dotPageY, panelPageY, panelPageY + panelHeight);
+  
+  // Add padding for the connector
+  const padding = 50;
+  const containerX = minX - padding;
+  const containerY = minY - padding;
+  const containerWidth = maxX - minX + padding * 2;
+  const containerHeight = maxY - minY + padding * 2;
+  
+  // Convert positions to container-relative coordinates
+  const dotRelX = dotPageX - containerX;
+  const dotRelY = dotPageY - containerY;
+  const panelRelX = panelPageX - containerX;
+  const panelRelY = panelPageY - containerY;
+  
+  // Build the elbow connector path
+  const elbowOffset = 40;
+  let elbowX, connectorEndX, connectorEndY;
+  
+  if (isLeftSide) {
+    // Connector goes: dot → left → down/up → right to panel's right edge
+    elbowX = dotRelX - elbowOffset;
+    connectorEndX = panelRelX + panelWidth;
+    connectorEndY = panelRelY + panelHeight / 2;
+  } else {
+    // Connector goes: dot → right → down/up → left to panel's left edge
+    elbowX = dotRelX + elbowOffset;
+    connectorEndX = panelRelX;
+    connectorEndY = panelRelY + panelHeight / 2;
+  }
+  
+  const pathD = `M ${dotRelX} ${dotRelY} H ${elbowX} V ${connectorEndY} H ${connectorEndX}`;
+  
   // Create tooltip container
   const tooltip = document.createElement('div');
-  tooltip.className = 'species-tooltip';
+  tooltip.className = 'species-tooltip' + (isLeftSide ? ' left-side' : '');
+  tooltip.style.cssText = `
+    position: absolute;
+    left: ${containerX}px;
+    top: ${containerY}px;
+    width: ${containerWidth}px;
+    height: ${containerHeight}px;
+    pointer-events: none;
+    z-index: 1000;
+  `;
+  
   tooltip.innerHTML = `
-    <div class="tooltip-connector">
-      <div class="connector-h1"></div>
-      <div class="connector-v"></div>
-      <div class="connector-h2"></div>
-    </div>
-    <div class="tooltip-panel">
+    <svg class="tooltip-connector-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible;">
+      <defs>
+        <filter id="connectorGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <path 
+        class="connector-path" 
+        d="${pathD}" 
+        fill="none" 
+        stroke="rgba(242, 193, 78, 0.8)" 
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        filter="url(#connectorGlow)"
+      />
+    </svg>
+    <div class="tooltip-panel" style="position: absolute; left: ${panelRelX}px; top: ${panelRelY}px; width: ${panelWidth}px; pointer-events: auto;">
       <div class="tooltip-header">
         <span class="tooltip-title">${species.name}</span>
       </div>
@@ -129,61 +220,25 @@ function showSpeciesTooltip(speciesId, anchorEl) {
   document.body.appendChild(tooltip);
   activeTooltip = tooltip;
   
-  // Store reference to anchor for cleanup
-  tooltip.dataset.anchorId = speciesId;
+  // Store reference for cleanup
+  tooltip.dataset.anchorId = species.id;
   
-  // Position and animate
-  positionTooltip(tooltip, anchorEl);
-  
+  // Animate in
   requestAnimationFrame(() => {
     tooltip.classList.add('visible');
   });
   
-  // Add mouseleave handler to tooltip itself
-  tooltip.addEventListener('mouseenter', () => {
+  // Add hover handlers to tooltip panel
+  const panel = tooltip.querySelector('.tooltip-panel');
+  panel.addEventListener('mouseenter', () => {
     if (tooltipHoverTimeout) {
       clearTimeout(tooltipHoverTimeout);
       tooltipHoverTimeout = null;
     }
   });
   
-  tooltip.addEventListener('mouseleave', () => {
+  panel.addEventListener('mouseleave', () => {
     scheduleHideTooltip();
-  });
-}
-
-/**
- * Position tooltip next to the dot
- * Uses absolute positioning so it scrolls with the page
- */
-function positionTooltip(tooltip, anchorEl) {
-  const rect = anchorEl.getBoundingClientRect();
-  const scrollY = window.scrollY || window.pageYOffset;
-  const scrollX = window.scrollX || window.pageXOffset;
-  
-  // Dot is positioned at right: -6px, 10px wide, so center is at rect.right - 1
-  const dotCenterX = rect.right - 1 + scrollX;
-  const dotCenterY = rect.top + rect.height / 2 + scrollY;
-  
-  // Position tooltip at the dot, centered vertically on the dot
-  tooltip.style.position = 'absolute';
-  tooltip.style.left = `${dotCenterX}px`;
-  tooltip.style.top = `${dotCenterY}px`;
-  tooltip.style.transform = 'translateY(-50%)'; // Center vertically on dot
-  
-  // Check if tooltip would go off right edge
-  requestAnimationFrame(() => {
-    const tooltipPanel = tooltip.querySelector('.tooltip-panel');
-    if (!tooltipPanel) return;
-    const tooltipRect = tooltipPanel.getBoundingClientRect();
-    
-    if (tooltipRect.right > window.innerWidth - 20) {
-      tooltip.classList.add('left-side');
-      const dot = anchorEl.querySelector('.hover-dot');
-      if (dot) dot.classList.add('left-side');
-      // Position at left side of the image
-      tooltip.style.left = `${rect.left + 1 + scrollX}px`;
-    }
   });
 }
 
@@ -238,5 +293,26 @@ function cancelTooltipHide() {
   if (tooltipHoverTimeout) {
     clearTimeout(tooltipHoverTimeout);
     tooltipHoverTimeout = null;
+  }
+}
+
+/**
+ * Try next image format for species (fallback chain)
+ */
+function tryNextSpeciesImage(img) {
+  const speciesId = img.dataset.speciesId;
+  const currentSrc = img.src;
+  
+  const formats = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
+  const currentFormat = formats.find(f => currentSrc.toLowerCase().endsWith(f));
+  const currentIndex = formats.indexOf(currentFormat);
+  
+  if (currentIndex < formats.length - 1) {
+    const basePath = currentSrc.substring(0, currentSrc.lastIndexOf('.'));
+    img.src = basePath + formats[currentIndex + 1];
+  } else {
+    // All formats failed, use placeholder
+    img.src = 'assets/species/placeholder.png';
+    img.onerror = null;
   }
 }

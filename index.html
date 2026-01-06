@@ -6,7 +6,7 @@
   <title>DATAPAD — Création de personnage</title>
   
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./css/main.css" />
 </head>
 
 <body>
@@ -113,14 +113,28 @@
           </div>
           <div class="panel">
             <div class="field">
-              <label for="aff">Camp</label>
-              <select id="aff">
-                <option value="">— Choisis —</option>
-                <option>République</option>
-                <option>Empire Sith</option>
-                <option>Indépendant</option>
-                <option>Double agent</option>
-              </select>
+              <label>Camp</label>
+              <div class="custom-select" id="affSelect">
+                <div class="custom-select-trigger" tabindex="0">
+                  <span class="custom-select-value">— Choisis —</span>
+                  <span class="custom-select-arrow">▼</span>
+                </div>
+                <div class="custom-select-options">
+                  <div class="custom-select-option" data-value="République">
+                    <span class="option-icon republic">◆</span> République
+                  </div>
+                  <div class="custom-select-option" data-value="Empire Sith">
+                    <span class="option-icon sith">◆</span> Empire Sith
+                  </div>
+                  <div class="custom-select-option" data-value="Indépendant">
+                    <span class="option-icon neutral">◆</span> Indépendant
+                  </div>
+                  <div class="custom-select-option" data-value="Double agent">
+                    <span class="option-icon double">◆</span> Double agent
+                  </div>
+                </div>
+                <input type="hidden" id="aff" name="aff" value="">
+              </div>
             </div>
             <p class="hint" style="margin-top:10px">Tu peux changer de camp en campagne. Ici, c'est ton point de départ.</p>
           </div>

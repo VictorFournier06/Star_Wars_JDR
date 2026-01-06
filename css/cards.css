@@ -1,0 +1,251 @@
+/* ==========================================================================
+   STAR WARS CHARACTER CREATOR - CARDS & SELECTIONS
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CHOICE CARDS (Species, Professions)
+   -------------------------------------------------------------------------- */
+.choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid rgba(34, 51, 92, 0.70);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.12);
+  margin: 10px 0;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.choice:hover,
+.species-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(127, 209, 255, 0.45);
+}
+
+.choice.active,
+.species-card.active {
+  border-color: rgba(127, 209, 255, 0.65);
+  background: rgba(127, 209, 255, 0.08);
+  box-shadow: 0 0 0 1px rgba(127, 209, 255, 0.15), 0 0 40px rgba(127, 209, 255, 0.10);
+}
+
+.choice strong {
+  font-family: var(--title);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.choice p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.choice .left {
+  flex: 1 1 520px;
+  min-width: 0;
+}
+
+.choice .right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   TRAITS GRID
+   -------------------------------------------------------------------------- */
+.traits {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+@media (min-width: 920px) {
+  .traits { grid-template-columns: 1fr 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   TRAIT CARDS
+   -------------------------------------------------------------------------- */
+.trait {
+  border: 1px solid rgba(34, 51, 92, 0.72);
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.14);
+  padding: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.trait:hover {
+  transform: translateY(-1px);
+  border-color: rgba(127, 209, 255, 0.35);
+}
+
+.trait.active {
+  border-color: rgba(127, 209, 255, 0.65);
+  background: rgba(127, 209, 255, 0.08);
+  box-shadow: 0 0 0 1px rgba(127, 209, 255, 0.12), 0 0 34px rgba(127, 209, 255, 0.10);
+}
+
+.trait.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 51, 92, 0.9);
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.25);
+  flex: 0 0 auto;
+  margin-top: 2px;
+  position: relative;
+}
+
+.trait.active .dot {
+  border-color: rgba(127, 209, 255, 0.65);
+  background: rgba(127, 209, 255, 0.25);
+  box-shadow: 0 0 18px rgba(127, 209, 255, 0.20);
+}
+
+.trait .body {
+  flex: 1;
+  min-width: 0;
+}
+
+.trait .top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.trait .name {
+  font-family: var(--title);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 13px;
+  margin: 0;
+  min-width: 0;
+}
+
+.trait .desc {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+/* --------------------------------------------------------------------------
+   SPECIES CARDS WITH IMAGES
+   -------------------------------------------------------------------------- */
+.species-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid rgba(34, 51, 92, 0.70);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.12);
+  margin: 10px 0;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  position: relative;
+}
+
+.species-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(127, 209, 255, 0.45);
+  box-shadow: 0 8px 32px rgba(127, 209, 255, 0.12);
+}
+
+.species-card.active {
+  border-color: rgba(127, 209, 255, 0.65);
+  background: rgba(127, 209, 255, 0.08);
+  box-shadow: 0 0 0 1px rgba(127, 209, 255, 0.15), 0 0 40px rgba(127, 209, 255, 0.10);
+}
+
+.species-card .species-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  border: 1px solid rgba(34, 51, 92, 0.60);
+  background: rgba(0, 0, 0, 0.3);
+  object-fit: contain;
+  object-position: center;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.species-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.species-card .species-name {
+  font-family: var(--title);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 13px;
+  margin: 0;
+}
+
+.species-card .species-blurb {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.species-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.species-pts {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+/* Species grid layout */
+.species-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+@media (min-width: 720px) {
+  .species-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .species-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

@@ -1,0 +1,171 @@
+/* ==========================================================================
+   STAR WARS CHARACTER CREATOR - ROTATING LOGO / COIN
+   ========================================================================== */
+
+.logo-container {
+  width: 200px;
+  height: 200px;
+  perspective: 1000px;
+  position: fixed;
+  top: 40%;
+  left: 86%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* Rotating coin with two faces */
+.logo-coin {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: logoRotateSlow 12s linear infinite;
+}
+
+/* Both faces share these properties */
+.logo-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  border-radius: 50%;
+  background-size: 65%;
+  background-repeat: no-repeat;
+  background-position: center;
+  /* No animations on faces - only on parent coin */
+}
+
+/* Republic face - Blue holographic (front) */
+.logo-republic {
+  background-image: url('../assets/Republic_Emblem.svg');
+  background-color: rgba(20, 40, 80, 0.8);
+  border: 3px solid rgba(100, 180, 255, 0.7);
+  box-shadow: 
+    0 0 30px rgba(100, 180, 255, 0.5),
+    0 0 60px rgba(100, 180, 255, 0.3),
+    inset 0 0 30px rgba(100, 180, 255, 0.2);
+  /* Must be at z position to prevent z-fighting */
+  transform: translateZ(1px);
+}
+
+/* Sith face - Red holographic (back of coin) */
+.logo-sith {
+  background-image: url('../assets/Sith_Emblem.svg');
+  background-color: rgba(80, 20, 20, 0.8);
+  border: 3px solid rgba(255, 80, 80, 0.7);
+  /* Rotate 180deg AND translate back to prevent z-fighting */
+  transform: rotateY(180deg) translateZ(1px);
+  box-shadow: 
+    0 0 30px rgba(255, 80, 80, 0.5),
+    0 0 60px rgba(255, 80, 80, 0.3),
+    inset 0 0 30px rgba(255, 80, 80, 0.2);
+}
+
+/* Slow constant rotation animation */
+@keyframes logoRotateSlow {
+  0% { 
+    transform: rotateY(0deg); 
+  }
+  100% { 
+    transform: rotateY(360deg); 
+  }
+}
+
+/* Holographic flicker effects (not currently used on faces to avoid backface issues) */
+@keyframes holoFlickerBlue {
+  0%, 100% { 
+    opacity: 0.9;
+    box-shadow: 
+      0 0 15px rgba(100, 180, 255, 0.5),
+      0 0 30px rgba(100, 180, 255, 0.3),
+      inset 0 0 15px rgba(100, 180, 255, 0.2);
+  }
+  25% { 
+    opacity: 1;
+    box-shadow: 
+      0 0 20px rgba(100, 180, 255, 0.7),
+      0 0 40px rgba(100, 180, 255, 0.4),
+      inset 0 0 20px rgba(100, 180, 255, 0.3);
+  }
+  50% { 
+    opacity: 0.85;
+    box-shadow: 
+      0 0 12px rgba(100, 180, 255, 0.4),
+      0 0 25px rgba(100, 180, 255, 0.2),
+      inset 0 0 10px rgba(100, 180, 255, 0.15);
+  }
+  75% { 
+    opacity: 0.95;
+    box-shadow: 
+      0 0 18px rgba(100, 180, 255, 0.6),
+      0 0 35px rgba(100, 180, 255, 0.35),
+      inset 0 0 18px rgba(100, 180, 255, 0.25);
+  }
+}
+
+@keyframes holoFlickerRed {
+  0%, 100% { 
+    opacity: 0.9;
+    box-shadow: 
+      0 0 15px rgba(255, 80, 80, 0.5),
+      0 0 30px rgba(255, 80, 80, 0.3),
+      inset 0 0 15px rgba(255, 80, 80, 0.2);
+  }
+  33% { 
+    opacity: 1;
+    box-shadow: 
+      0 0 20px rgba(255, 80, 80, 0.7),
+      0 0 40px rgba(255, 80, 80, 0.4),
+      inset 0 0 20px rgba(255, 80, 80, 0.3);
+  }
+  66% { 
+    opacity: 0.85;
+    box-shadow: 
+      0 0 12px rgba(255, 80, 80, 0.4),
+      0 0 25px rgba(255, 80, 80, 0.2),
+      inset 0 0 10px rgba(255, 80, 80, 0.15);
+  }
+}
+
+/* Scanline overlay for holographic depth */
+.logo-face::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.03) 2px,
+    rgba(255, 255, 255, 0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* Holographic shimmer overlay */
+.logo-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  animation: holoShimmer 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes holoShimmer {
+  0% { opacity: 0.5; transform: rotate(0deg); }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.5; transform: rotate(360deg); }
+}

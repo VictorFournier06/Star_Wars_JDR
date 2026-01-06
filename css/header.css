@@ -1,0 +1,219 @@
+/* ==========================================================================
+   STAR WARS CHARACTER CREATOR - HEADER & NAVIGATION
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   TOPBAR / HEADER
+   -------------------------------------------------------------------------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(34, 51, 92, 0.95);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(10, 19, 38, 0.92), rgba(11, 16, 32, 0.74));
+  box-shadow: var(--shadow);
+  padding: 14px;
+  position: sticky;
+  top: 10px;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.topbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(127, 209, 255, 0.16) 0 1px, rgba(0, 0, 0, 0) 1px 26px),
+    repeating-linear-gradient(0deg, rgba(127, 209, 255, 0.10) 0 1px, rgba(0, 0, 0, 0) 1px 18px);
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  position: relative;
+}
+
+.title {
+  min-width: 0;
+}
+
+.kicker {
+  font-family: var(--mono);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+h1 {
+  font-family: var(--title);
+  margin: 4px 0 0;
+  font-size: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   HUD ELEMENTS
+   -------------------------------------------------------------------------- */
+.hud {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.stamp {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(127, 209, 255, 0.45);
+  color: rgba(127, 209, 255, 0.95);
+  background: rgba(127, 209, 255, 0.10);
+  white-space: nowrap;
+  animation: pulse 3.6s ease-in-out infinite;
+}
+
+.stamp.warn {
+  border-color: rgba(242, 193, 78, 0.55);
+  color: rgba(242, 193, 78, 0.95);
+  background: rgba(242, 193, 78, 0.10);
+}
+
+@keyframes pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(127, 209, 255, 0)); }
+  50% { filter: drop-shadow(0 0 12px rgba(127, 209, 255, 0.22)); }
+}
+
+.meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(34, 51, 92, 0.8);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.meter .label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.meter .value {
+  font-family: var(--title);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  color: var(--glow);
+}
+
+.meter .value.ok { color: var(--ok); }
+.meter .value.bad { color: var(--danger); }
+
+/* --------------------------------------------------------------------------
+   NAVIGATION
+   -------------------------------------------------------------------------- */
+.nav {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(34, 51, 92, 0.7);
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  appearance: none;
+  border: 1px solid rgba(34, 51, 92, 0.85);
+  background: rgba(0, 0, 0, 0.16);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.tab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(127, 209, 255, 0.38);
+  color: rgba(127, 209, 255, 0.95);
+}
+
+.tab.active {
+  border-color: rgba(127, 209, 255, 0.55);
+  color: rgba(127, 209, 255, 0.95);
+  background: rgba(127, 209, 255, 0.10);
+}
+
+.pager {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid rgba(34, 51, 92, 0.85);
+  background: rgba(0, 0, 0, 0.16);
+  color: rgba(127, 209, 255, 0.95);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(127, 209, 255, 0.55);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn.warn {
+  color: rgba(242, 193, 78, 0.95);
+  border-color: rgba(242, 193, 78, 0.35);
+}
+
+.footer-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
