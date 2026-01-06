@@ -160,7 +160,10 @@ function renderTabs() {
     const b = document.createElement('button');
     b.className = 'tab' + (idx === state.page ? ' active' : '');
     b.textContent = `${idx + 1} • ${name}`;
-    b.addEventListener('click', () => goTo(idx));
+    b.addEventListener('click', () => {
+      goTo(idx);
+      AudioManager.playSelect();
+    });
     tabs.appendChild(b);
   });
 }
@@ -229,6 +232,7 @@ function renderSpecies(forceRebuild = false) {
       state.speciesId = s.id;
       updateSpeciesSelection();
       setTotalUI();
+      AudioManager.playSelect();
     };
 
     card.addEventListener('click', selectIt);
@@ -293,6 +297,7 @@ function renderProfessions(forceRebuild = false) {
       state.professionId = p.id;
       updateProfessionSelection();
       setTotalUI();
+      AudioManager.playSelect();
     };
 
     row.addEventListener('click', selectIt);
@@ -379,6 +384,7 @@ function renderTraits(filterText = '') {
           : state.selectedTraits.add(t.id);
         renderTraits($('#traitSearch').value);
         setTotalUI();
+        AudioManager.playSelect();
       };
 
       card.addEventListener('click', toggle);
@@ -636,6 +642,9 @@ function initCustomSelect(selectEl) {
       // Close dropdown
       selectEl.classList.remove('open');
       
+      // Play select sound
+      AudioManager.playSelect();
+      
       // Dispatch change event for compatibility
       hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
     });
@@ -672,6 +681,18 @@ function init() {
   
   startFlicker();
   startRefreshSweep();
+  
+  // Initialize audio system
+  AudioManager.init();
+  
+  // Start music on first user interaction (browser autoplay policy)
+  const startMusicOnce = () => {
+    AudioManager.startMusic();
+    document.removeEventListener('click', startMusicOnce);
+    document.removeEventListener('keydown', startMusicOnce);
+  };
+  document.addEventListener('click', startMusicOnce);
+  document.addEventListener('keydown', startMusicOnce);
   
   console.log('✓ App initialized');
 }
