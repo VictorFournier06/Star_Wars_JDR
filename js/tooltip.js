@@ -316,3 +316,216 @@ function tryNextSpeciesImage(img) {
     img.onerror = null;
   }
 }
+
+// =============================================================================
+// PLANET TOOLTIPS
+// =============================================================================
+let activePlanetTooltip = null;
+let planetTooltipTimeout = null;
+let currentPlanetId = null;
+
+/**
+ * Show planet tooltip anchored to a planet node
+ */
+function showPlanetTooltip(planetId, anchorEl) {
+  // Clear any pending hide timeout
+  if (planetTooltipTimeout) {
+    clearTimeout(planetTooltipTimeout);
+    planetTooltipTimeout = null;
+  }
+  
+  // If same planet, keep current tooltip
+  if (currentPlanetId === planetId && activePlanetTooltip) {
+    return;
+  }
+  
+  // Remove existing tooltip
+  hidePlanetTooltipImmediate();
+  
+  currentPlanetId = planetId;
+  
+  const planet = PLANETES.find(p => p.id === planetId);
+  if (!planet) return;
+  
+  // Get anchor position in viewport
+  const anchorRect = anchorEl.getBoundingClientRect();
+  const scrollX = window.scrollX || window.pageXOffset || 0;
+  const scrollY = window.scrollY || window.pageYOffset || 0;
+  
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  
+  // Tooltip dimensions (updated to match CSS)
+  const tooltipWidth = 520;
+  const tooltipHeight = 500;
+  
+  // Position tooltip to the side with most space
+  let tooltipX, tooltipY;
+  const margin = 20;
+  
+  // Prefer right side if there's room, otherwise left
+  if (anchorRect.right + tooltipWidth + margin < vw) {
+    tooltipX = anchorRect.right + margin + scrollX;
+  } else if (anchorRect.left - tooltipWidth - margin > 0) {
+    tooltipX = anchorRect.left - tooltipWidth - margin + scrollX;
+  } else {
+    // Center horizontally
+    tooltipX = (vw - tooltipWidth) / 2 + scrollX;
+  }
+  
+  // Vertical: try to center with anchor, but stay in viewport
+  tooltipY = anchorRect.top + scrollY - tooltipHeight / 2 + anchorRect.height / 2;
+  tooltipY = Math.max(scrollY + margin, Math.min(scrollY + vh - tooltipHeight - margin, tooltipY));
+  
+  // Create tooltip
+  const tooltip = document.createElement('div');
+  tooltip.className = 'planet-tooltip';
+  tooltip.style.cssText = `
+    position: absolute;
+    left: ${tooltipX}px;
+    top: ${tooltipY}px;
+    z-index: 1000;
+    pointer-events: auto;
+  `;
+  
+  // Map planet IDs to file names and extensions
+  // Ambiance folder (banner images)
+  const ambianceFileMap = {
+    'coruscant': 'Coruscant.webp',
+    'alderaan': 'Alderaan.webp',
+    'corellia': 'Corellia.webp',
+    'balmorra': 'Balmorra.webp',
+    'kashyyyk': 'Kashyyyk.jpg',
+    'nar_shaddaa': 'NarShaddaa.jpg',
+    'quesh': 'Quesh.webp',
+    'tatooine': 'Tatooine.webp',
+    'taris': 'Taris.webp',
+    'hoth': 'Hoth.webp',
+    'mustafar': 'Mustafar.webp',
+    'ilum': 'Ilum.webp',
+    'belsavis': 'Belsavis.webp',
+    'voss': 'Voss.webp',
+    'carrick_station': 'CarrickStation.webp',
+    'vaiken_spacedock': 'VaikenSpacedock.jpg'
+  };
+  
+  // Planets folder (planet view images - all webp)
+  const planetFileMap = {
+    'coruscant': 'Coruscant.webp',
+    'alderaan': 'Alderaan.webp',
+    'corellia': 'Corellia.webp',
+    'balmorra': 'Balmorra.webp',
+    'kashyyyk': 'Kashyyyk.webp',
+    'nar_shaddaa': 'NarShaddaa.webp',
+    'quesh': 'Quesh.webp',
+    'tatooine': 'Tatooine.webp',
+    'taris': 'Taris.webp',
+    'hoth': 'Hoth.webp',
+    'mustafar': 'Mustafar.webp',
+    'ilum': 'Ilum.webp',
+    'belsavis': 'Belsavis.webp',
+    'voss': 'Voss.webp',
+    'carrick_station': 'CarrickStation.webp',
+    'vaiken_spacedock': 'VaikenSpacedock.webp'
+  };
+  
+  const ambianceFile = ambianceFileMap[planet.id] || `${planet.id}.webp`;
+  const planetFile = planetFileMap[planet.id] || `${planet.id}.webp`;
+  const bannerPath = `assets/locations/ambiance/${ambianceFile}`;
+  const planetViewPath = `assets/locations/planets/${planetFile}`;
+  
+  // Clean population value (remove leading dash, keep tilde as ±)
+  let cleanPopulation = planet.population;
+  if (cleanPopulation.startsWith('~')) {
+    cleanPopulation = '± ' + cleanPopulation.substring(1).replace(/^[\-–—\s]+/, '');
+  } else {
+    cleanPopulation = cleanPopulation.replace(/^[\-–—\s]+/, '');
+  }
+  
+  tooltip.innerHTML = `
+    <div class="planet-tooltip-panel">
+      <div class="planet-tooltip-banner">
+        <img src="${bannerPath}" alt="${planet.name}" onerror="this.parentElement.style.display='none'">
+        <div class="planet-tooltip-header-overlay">
+          <h3 class="planet-tooltip-name">${planet.name}</h3>
+          <div class="planet-tooltip-region">${planet.region}</div>
+        </div>
+      </div>
+      <div class="planet-tooltip-body">
+        <div class="planet-tooltip-stats">
+          <div class="planet-stat-hex planet-stat-climat">
+            <div class="hex-content">
+              <div class="stat-box-label">Climat</div>
+              <div class="stat-box-value">${planet.climat}</div>
+            </div>
+          </div>
+          <div class="planet-tooltip-planet-view">
+            <img src="${planetViewPath}" alt="${planet.name}" onerror="this.style.display='none'">
+          </div>
+          <div class="planet-stat-hex planet-stat-population">
+            <div class="hex-content">
+              <div class="stat-box-label">Population</div>
+              <div class="stat-box-value">${cleanPopulation}</div>
+            </div>
+          </div>
+        </div>
+        <div class="planet-stat-hex planet-stat-terrain full-width">
+          <div class="hex-content">
+            <div class="stat-box-label">Géographie</div>
+            <div class="stat-box-value">${planet.terrain}</div>
+          </div>
+        </div>
+        <p class="planet-tooltip-desc">${planet.desc}</p>
+      </div>
+    </div>
+  `;
+  
+  // Add hover handlers to keep tooltip visible when hovering over it
+  tooltip.addEventListener('mouseenter', () => {
+    // Clear any pending hide timeout
+    if (planetTooltipTimeout) {
+      clearTimeout(planetTooltipTimeout);
+      planetTooltipTimeout = null;
+    }
+  });
+  
+  tooltip.addEventListener('mouseleave', () => {
+    hidePlanetTooltip();
+  });
+  
+  document.body.appendChild(tooltip);
+  activePlanetTooltip = tooltip;
+}
+
+/**
+ * Hide planet tooltip with delay
+ */
+function hidePlanetTooltip() {
+  // Clear any existing timeout
+  if (planetTooltipTimeout) {
+    clearTimeout(planetTooltipTimeout);
+  }
+  
+  // Small delay to allow moving to tooltip
+  planetTooltipTimeout = setTimeout(() => {
+    if (activePlanetTooltip && !activePlanetTooltip.matches(':hover')) {
+      hidePlanetTooltipImmediate();
+    }
+    planetTooltipTimeout = null;
+  }, 150);
+}
+
+/**
+ * Hide planet tooltip immediately
+ */
+function hidePlanetTooltipImmediate() {
+  if (planetTooltipTimeout) {
+    clearTimeout(planetTooltipTimeout);
+    planetTooltipTimeout = null;
+  }
+  if (activePlanetTooltip) {
+    activePlanetTooltip.remove();
+    activePlanetTooltip = null;
+  }
+  currentPlanetId = null;
+}

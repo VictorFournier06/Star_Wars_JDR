@@ -12,6 +12,8 @@ const state = {
   speciesId: null,
   professionId: null,
   selectedTraits: new Set(),
+  // Origine
+  origineId: null,
   // Morale
   doctrineId: null,
   methodeId: null,
@@ -148,7 +150,7 @@ function goTo(i) {
   $('#prevBtn').disabled = state.page === 0;
   $('#nextBtn').disabled = state.page === PAGE_NAMES.length - 1;
 
-  if (state.page === 5) renderSummary();
+  if (state.page === 6) renderSummary();
   
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -406,6 +408,208 @@ function renderTraits(filterText = '') {
 }
 
 // =============================================================================
+// ORIGINE (GALAXY MAP) RENDER FUNCTIONS
+// =============================================================================
+function planetById(id) {
+  return PLANETES.find(p => p.id === id);
+}
+
+// Galaxy rotation animation state
+let galaxyAnimationId = null;
+let galaxyStartTime = null;
+const GALAXY_ROTATION_DURATION = 240000; // 240s in ms
+
+/**
+ * Calculate rotated position around center (50%, 50%)
+ * @param {number} x - Original x position (0-100)
+ * @param {number} y - Original y position (0-100)
+ * @param {number} angle - Rotation angle in radians
+ * @returns {{x: number, y: number}} - Rotated position
+ */
+function rotatePoint(x, y, angle) {
+  const centerX = 50;
+  const centerY = 50;
+  const dx = x - centerX;
+  const dy = y - centerY;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return {
+    x: centerX + dx * cos - dy * sin,
+    y: centerY + dx * sin + dy * cos
+  };
+}
+
+/**
+ * Update all planet and line positions based on current rotation angle
+ */
+function updateGalaxyPositions() {
+  const nodesContainer = $('#galaxyNodes');
+  const linesContainer = document.querySelector('.galaxy-lines');
+  if (!nodesContainer || !linesContainer) return;
+  
+  // Calculate current rotation angle
+  const elapsed = performance.now() - galaxyStartTime;
+  const angle = (elapsed / GALAXY_ROTATION_DURATION) * 2 * Math.PI;
+  
+  // Update planet node positions (round to 2 decimal places to reduce sub-pixel flickering)
+  const nodes = nodesContainer.querySelectorAll('.planet-node');
+  nodes.forEach(node => {
+    const planetId = node.dataset.id;
+    const planet = planetById(planetId);
+    if (!planet) return;
+    
+    const rotated = rotatePoint(planet.x, planet.y, angle);
+    node.style.left = Math.round(rotated.x * 100) / 100 + '%';
+    node.style.top = Math.round(rotated.y * 10) / 10 + '%';
+  });
+  
+  // Update hyperspace line positions (also rounded)
+  const lines = linesContainer.querySelectorAll('line');
+  let lineIndex = 0;
+  const drawnLines = new Set();
+  
+  PLANETES.forEach(planet => {
+    (planet.connections || []).forEach(targetId => {
+      const target = planetById(targetId);
+      if (!target) return;
+      
+      const lineKey = [planet.id, targetId].sort().join('-');
+      if (drawnLines.has(lineKey)) return;
+      drawnLines.add(lineKey);
+      
+      const line = lines[lineIndex];
+      if (line) {
+        const p1 = rotatePoint(planet.x, planet.y, angle);
+        const p2 = rotatePoint(target.x, target.y, angle);
+        // Round to 2 decimal places
+        line.setAttribute('x1', Math.round(p1.x * 100) / 100 + '%');
+        line.setAttribute('y1', Math.round(p1.y * 100) / 100 + '%');
+        line.setAttribute('x2', Math.round(p2.x * 100) / 100 + '%');
+        line.setAttribute('y2', Math.round(p2.y * 100) / 100 + '%');
+      }
+      lineIndex++;
+    });
+  });
+  
+  // Continue animation
+  galaxyAnimationId = requestAnimationFrame(updateGalaxyPositions);
+}
+
+/**
+ * Start galaxy rotation animation
+ */
+function startGalaxyAnimation() {
+  if (galaxyAnimationId) {
+    cancelAnimationFrame(galaxyAnimationId);
+  }
+  if (galaxyStartTime === null) {
+    galaxyStartTime = performance.now();
+  }
+  galaxyAnimationId = requestAnimationFrame(updateGalaxyPositions);
+}
+
+/**
+ * Stop galaxy rotation animation
+ */
+function stopGalaxyAnimation() {
+  if (galaxyAnimationId) {
+    cancelAnimationFrame(galaxyAnimationId);
+    galaxyAnimationId = null;
+  }
+}
+
+function renderOrigine() {
+  const nodesContainer = $('#galaxyNodes');
+  const linesContainer = document.querySelector('.galaxy-lines');
+  if (!nodesContainer || !linesContainer) return;
+  
+  // Stop existing animation during re-render
+  stopGalaxyAnimation();
+  
+  nodesContainer.innerHTML = '';
+  linesContainer.innerHTML = '';
+  
+  // Draw hyperspace lines first (will be updated by animation)
+  const drawnLines = new Set();
+  PLANETES.forEach(planet => {
+    (planet.connections || []).forEach(targetId => {
+      const target = planetById(targetId);
+      if (!target) return;
+      
+      // Avoid drawing duplicate lines
+      const lineKey = [planet.id, targetId].sort().join('-');
+      if (drawnLines.has(lineKey)) return;
+      drawnLines.add(lineKey);
+      
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', planet.x + '%');
+      line.setAttribute('y1', planet.y + '%');
+      line.setAttribute('x2', target.x + '%');
+      line.setAttribute('y2', target.y + '%');
+      linesContainer.appendChild(line);
+    });
+  });
+  
+  // Create planet nodes
+  PLANETES.forEach(planet => {
+    const node = document.createElement('div');
+    const isStation = planet.id.includes('station') || planet.id.includes('spacedock');
+    const isSelected = state.origineId === planet.id;
+    
+    node.className = 'planet-node' + (isStation ? ' station' : '') + (isSelected ? ' selected' : '');
+    node.style.left = planet.x + '%';
+    node.style.top = planet.y + '%';
+    node.dataset.id = planet.id;
+    node.setAttribute('tabindex', '0');
+    node.setAttribute('role', 'button');
+    node.setAttribute('aria-label', planet.name);
+    
+    node.innerHTML = `
+      <div class="planet-dot"></div>
+      <span class="planet-label">${planet.name}</span>
+    `;
+    
+    // Click to select
+    const selectPlanet = () => {
+      state.origineId = planet.id;
+      renderOrigine();
+      setTotalUI();
+    };
+    
+    node.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectPlanet();
+    });
+    
+    node.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectPlanet();
+      }
+    });
+    
+    // Hover tooltip - use pointerenter/leave for better tracking with moving elements
+    node.addEventListener('pointerenter', (e) => {
+      // Only respond to mouse pointer
+      if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
+        showPlanetTooltip(planet.id, node);
+      }
+    });
+    
+    node.addEventListener('pointerleave', (e) => {
+      if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
+        hidePlanetTooltip();
+      }
+    });
+    
+    nodesContainer.appendChild(node);
+  });
+  
+  // Start position animation
+  startGalaxyAnimation();
+}
+
+// =============================================================================
 // MORALE RENDER FUNCTIONS
 // =============================================================================
 function renderDoctrines() {
@@ -608,6 +812,10 @@ function renderSummary() {
     : '—';
   add('Traits', traitText);
 
+  // Origine summary
+  const origine = PLANETES.find(p => p.id === state.origineId);
+  add('Origine', origine ? `${origine.name} (${origine.region})` : null);
+
   // Morale summary
   const doctrine = DOCTRINES.find(d => d.id === state.doctrineId);
   const methode = METHODES.find(m => m.id === state.methodeId);
@@ -634,6 +842,9 @@ function buildSavePayload() {
   const p = profession();
   const skills = [...new Set([...(s?.hidden?.skills || []), ...(p?.hidden?.skills || [])])];
   
+  // Resolve origine choice
+  const origine = PLANETES.find(pl => pl.id === state.origineId);
+  
   // Resolve morale choices
   const doctrine = DOCTRINES.find(d => d.id === state.doctrineId);
   const methode = METHODES.find(m => m.id === state.methodeId);
@@ -642,7 +853,7 @@ function buildSavePayload() {
     .filter(Boolean);
   
   return {
-    version: 'v0.6',
+    version: 'v0.7',
     codename: $('#codename')?.value || '',
     concept: $('#concept')?.value || '',
     notes: $('#notes')?.value || '',
@@ -650,6 +861,8 @@ function buildSavePayload() {
     speciesId: state.speciesId,
     professionId: state.professionId,
     selectedTraits: Array.from(state.selectedTraits),
+    // Origine
+    origineId: state.origineId,
     // Morale
     doctrineId: state.doctrineId,
     methodeId: state.methodeId,
@@ -664,6 +877,9 @@ function buildSavePayload() {
         .map(id => traitById(id))
         .filter(Boolean)
         .map(t => ({ id: t.id, name: t.name, points: traitPoints(t) })),
+      // Origine resolved
+      origine: origine?.name || null,
+      origineRegion: origine?.region || null,
       // Morale resolved
       doctrine: doctrine?.name || null,
       methode: methode?.name || null,
@@ -673,8 +889,8 @@ function buildSavePayload() {
 }
 
 async function downloadFinalPNG() {
-  if (state.page !== 5) {
-    goTo(5);
+  if (state.page !== 6) {
+    goTo(6);
     await new Promise(r => setTimeout(r, 220));
   }
   
@@ -810,6 +1026,8 @@ function resetAll() {
   state.selectedTraits.clear();
   state.professionId = null;
   state.speciesId = null;
+  // Reset origine
+  state.origineId = null;
   // Reset morale
   state.doctrineId = null;
   state.methodeId = null;
@@ -839,6 +1057,7 @@ function resetAll() {
   renderSpecies();
   renderProfessions();
   renderTraits('');
+  renderOrigine();
   renderDoctrines();
   renderMethodes();
   renderLignesRouges();
@@ -915,6 +1134,8 @@ function init() {
   renderSpecies();
   renderProfessions();
   renderTraits('');
+  // Origine
+  renderOrigine();
   // Morale
   renderDoctrines();
   renderMethodes();

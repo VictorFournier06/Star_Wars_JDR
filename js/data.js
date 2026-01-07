@@ -1489,12 +1489,219 @@ const TRAITS = [
 ];
 
 // =============================================================================
+// PLANETS (ORIGINE)
+// Coordinates in percentage (0-100) for positioning on galaxy map
+// Connections define hyperspace lanes between planets
+// =============================================================================
+const PLANETES = [
+  // --- Core Worlds ---
+  {
+    id: 'coruscant',
+    name: "Coruscant",
+    region: "Mondes du Noyau",
+    climat: "Tempéré (artificiel)",
+    terrain: "Écuménopole planétaire",
+    population: "~3 billions",
+    desc: "Capitale de la République Galactique, Coruscant est une planète-cité entièrement recouverte d'immeubles titanesques. Centre politique et culturel de la galaxie, elle abrite le Sénat, le Temple Jedi, et d'innombrables niveaux souterrains où règnent crime et misère.",
+    x: 48, y: 48,
+    connections: ['alderaan', 'corellia', 'balmorra'],
+    image: "https://static.wikia.nocookie.net/starwars/images/3/32/Coruscant_Promenade_-_FoD.png"
+  },
+  {
+    id: 'alderaan',
+    name: "Alderaan",
+    region: "Mondes du Noyau",
+    climat: "Tempéré",
+    terrain: "Montagnes, plaines, forêts",
+    population: "~2 milliards",
+    desc: "Monde pacifique célèbre pour sa beauté naturelle et sa culture raffinée. Alderaan est un centre diplomatique majeur, connu pour son opposition aux armes et son engagement pour la paix. Ses montagnes enneigées et ses prairies verdoyantes en font un joyau des Mondes du Noyau.",
+    x: 52, y: 42,
+    connections: ['coruscant', 'corellia'],
+    image: "https://static.wikia.nocookie.net/starwars/images/4/4a/Alderaan.jpg"
+  },
+  {
+    id: 'corellia',
+    name: "Corellia",
+    region: "Mondes du Noyau",
+    climat: "Tempéré",
+    terrain: "Plaines, forêts, zones urbaines",
+    population: "~3 milliards",
+    desc: "Célèbre pour ses chantiers navals et ses pilotes légendaires, Corellia produit certains des meilleurs vaisseaux de la galaxie. Sa population indépendante et frondeuse a donné naissance à de nombreux contrebandiers et héros. Les Corelliens sont réputés pour leur esprit aventurier.",
+    x: 44, y: 44,
+    connections: ['coruscant', 'alderaan', 'nar_shaddaa'],
+    image: "https://static.wikia.nocookie.net/starwars/images/d/d7/Corellia-SWCT.png"
+  },
+  // --- Colonies & Mid Rim ---
+  {
+    id: 'balmorra',
+    name: "Balmorra",
+    region: "Colonies",
+    climat: "Tempéré à aride",
+    terrain: "Montagnes, usines, terres stériles",
+    population: "~700 millions",
+    desc: "Monde industriel spécialisé dans la fabrication de droïdes de combat et d'armements. Balmorra a été ravagée par de nombreux conflits, laissant des cicatrices sur son paysage. Ses usines tournent jour et nuit pour alimenter les armées de la galaxie.",
+    x: 55, y: 52,
+    connections: ['coruscant', 'taris'],
+    image: "https://static.wikia.nocookie.net/starwars/images/b/bb/BalmorraTBB.png"
+  },
+  {
+    id: 'kashyyyk',
+    name: "Kashyyyk",
+    region: "Bordure Médiane",
+    climat: "Tempéré tropical",
+    terrain: "Forêts géantes, océans",
+    population: "~56 millions",
+    desc: "Monde natal des Wookies, recouvert d'arbres wroshyr gigantesques. Les Wookies vivent dans des cités arboricoles, tandis que les niveaux inférieurs de la forêt abritent des créatures dangereuses. Kashyyyk est un symbole de liberté et de résistance.",
+    x: 40, y: 55,
+    connections: ['corellia', 'nar_shaddaa'],
+    image: "https://static.wikia.nocookie.net/starwars/images/e/ea/Kashyyyk-SW-MTHC.png"
+  },
+  // --- Hutt Space ---
+  {
+    id: 'nar_shaddaa',
+    name: "Nar Shaddaa",
+    region: "Espace Hutt",
+    climat: "Pollué, artificiel",
+    terrain: "Écuménopole lunaire",
+    population: "~85 milliards",
+    desc: "Surnommée la 'Lune des Contrebandiers', cette lune de Nal Hutta est un repaire de criminels, chasseurs de primes et opportunistes. Ses néons crasseux illuminent des rues où tout s'achète et se vend. Le crime organisé des Hutts y règne en maître.",
+    x: 62, y: 50,
+    connections: ['corellia', 'tatooine', 'quesh'],
+    image: "https://static.wikia.nocookie.net/starwars/images/d/dc/NarShaddaa-2015StarWars8.png"
+  },
+  {
+    id: 'quesh',
+    name: "Quesh",
+    region: "Espace Hutt",
+    climat: "Toxique",
+    terrain: "Marécages pollués, industrie",
+    population: "~50 000",
+    desc: "Monde empoisonné dont l'atmosphère toxique nécessite des masques respiratoires. Quesh est exploité pour ses composés chimiques rares utilisés dans la fabrication d'adrénalines de combat. Une guerre froide économique s'y déroule entre la République et les Hutts.",
+    x: 68, y: 45,
+    connections: ['nar_shaddaa', 'voss'],
+    image: "https://static.wikia.nocookie.net/starwars/images/3/3b/Quesh_TOR_new.png"
+  },
+  // --- Outer Rim ---
+  {
+    id: 'tatooine',
+    name: "Tatooine",
+    region: "Bordure Extérieure",
+    climat: "Aride, désertique",
+    terrain: "Déserts, canyons, dunes",
+    population: "~200 000",
+    desc: "Monde désertique sous deux soleils, contrôlé par les Hutts. Tatooine est un refuge pour les hors-la-loi, contrebandiers et esclaves. Ses villes comme Mos Eisley sont des repaires de vilenie, tandis que les Tuskens et les Jawas parcourent ses étendues arides.",
+    x: 72, y: 60,
+    connections: ['nar_shaddaa', 'hoth'],
+    image: "https://static.wikia.nocookie.net/starwars/images/b/b0/Tatooine_TPM.png"
+  },
+  {
+    id: 'taris',
+    name: "Taris",
+    region: "Bordure Extérieure",
+    climat: "Tempéré pollué",
+    terrain: "Ruines urbaines, marécages",
+    population: "~Quelques milliers",
+    desc: "Autrefois une écuménopole prospère, Taris fut bombardée et laissée en ruines. Ses gratte-ciel effondrés et ses marécages toxiques témoignent de sa chute. La République tente de reconstruire, mais rakgoules et pillards rendent la tâche périlleuse.",
+    x: 35, y: 35,
+    connections: ['balmorra', 'ilum'],
+    image: "https://static.wikia.nocookie.net/starwars/images/7/76/Taris-TFABG.jpg"
+  },
+  {
+    id: 'hoth',
+    name: "Hoth",
+    region: "Bordure Extérieure",
+    climat: "Glacial",
+    terrain: "Plaines de glace, cavernes",
+    population: "~Moins de 10",
+    desc: "Monde gelé balayé par des blizzards mortels. Hoth n'abrite que des créatures résistantes au froid comme les tauntauns et les wampas. Son isolement en fait un lieu idéal pour des bases secrètes, loin des regards indiscrets.",
+    x: 28, y: 62,
+    connections: ['tatooine', 'mustafar'],
+    image: "https://static.wikia.nocookie.net/starwars/images/a/a1/Hoth-2024SWHyperspace.png"
+  },
+  {
+    id: 'mustafar',
+    name: "Mustafar",
+    region: "Bordure Extérieure",
+    climat: "Volcanique, brûlant",
+    terrain: "Mers de lave, volcans",
+    population: "~20 000",
+    desc: "Petite planète volcanique dont la surface est recouverte de rivières de lave. Autrefois un monde verdoyant, Mustafar fut transformée en enfer par des forces cosmiques. Elle attire ceux qui cherchent le pouvoir du côté obscur et les exploitants de minerais rares.",
+    x: 22, y: 70,
+    connections: ['hoth', 'belsavis'],
+    image: "https://static.wikia.nocookie.net/starwars/images/6/61/Mustafar-TROSGG.png"
+  },
+  // --- Unknown Regions & Special ---
+  {
+    id: 'ilum',
+    name: "Ilum",
+    region: "Régions Inconnues",
+    climat: "Glacial",
+    terrain: "Glace, cavernes de cristal",
+    population: "~5 000",
+    desc: "Monde sacré pour les Jedi, source des cristaux Adegan utilisés dans les sabres laser. Ses cavernes de cristal sont un lieu d'épreuves pour les jeunes Padawans. L'Empire Sith convoite ses ressources, transformant ce sanctuaire en champ de bataille.",
+    x: 25, y: 28,
+    connections: ['taris', 'belsavis'],
+    image: "https://static.wikia.nocookie.net/starwars/images/0/02/Jedi_Temple_Ilum.png"
+  },
+  {
+    id: 'belsavis',
+    name: "Belsavis",
+    region: "Bordure Extérieure",
+    climat: "Glacial / Tropical (failles)",
+    terrain: "Glaciers, vallées volcaniques",
+    population: "~Quelques milliers",
+    desc: "Prison planétaire antique construite par les Rakatas. Sous sa surface glacée se cachent des vallées tropicales et des cryptes contenant les pires criminels de la galaxie. Des secrets millénaires y dorment, gardés par la République.",
+    x: 18, y: 55,
+    connections: ['ilum', 'mustafar'],
+    image: "https://static.wikia.nocookie.net/starwars/images/2/2b/Belsavis-CLNE.png"
+  },
+  {
+    id: 'voss',
+    name: "Voss",
+    region: "Bordure Extérieure",
+    climat: "Tempéré",
+    terrain: "Forêts, montagnes, plateaux",
+    population: "~Inconnue",
+    desc: "Monde mystique habité par les Voss, un peuple de mystiques doués de visions prophétiques, et les Gormaks, leurs ennemis héréditaires. Les deux factions galactiques courtisent les Voss pour leurs pouvoirs, mais ce peuple reste farouchement neutre.",
+    x: 75, y: 35,
+    connections: ['quesh', 'vaiken_spacedock'],
+    image: "https://static.wikia.nocookie.net/starwars/images/5/5a/Voss_TOR.jpg"
+  },
+  // --- Stations spatiales ---
+  {
+    id: 'carrick_station',
+    name: "Station Carrick",
+    region: "Mondes du Noyau (orbite)",
+    climat: "Artificiel",
+    terrain: "Station spatiale",
+    population: "~50 000",
+    desc: "Quartier général de la Flotte de la République, cette station spatiale massive orbite dans les Mondes du Noyau. Point de ralliement pour les forces républicaines, elle abrite hangars, centres de commandement et zones commerciales. Nommée en l'honneur de Zayne Carrick.",
+    x: 42, y: 38,
+    connections: ['coruscant', 'taris', 'alderaan'],
+    image: "https://static.wikia.nocookie.net/starwars/images/2/25/CarrickStation_Cropped.png"
+  },
+  {
+    id: 'vaiken_spacedock',
+    name: "Spatioport Vaiken",
+    region: "Bordure Extérieure (orbite)",
+    climat: "Artificiel",
+    terrain: "Station spatiale",
+    population: "~40 000",
+    desc: "Principal port spatial de la Flotte Impériale Sith, nommé d'après le Grand Moff Odile Vaiken. Cette station colossale sert de point de départ pour les opérations militaires impériales. Le Conseil Noir s'y réunit parfois pour des affaires urgentes.",
+    x: 78, y: 28,
+    connections: ['voss', 'quesh'],
+    image: "https://static.wikia.nocookie.net/starwars/images/7/77/VaikenSpacedock_Cropped.png"
+  },
+];
+
+// =============================================================================
 // PAGE CONFIGURATION
 // =============================================================================
 const PAGE_NAMES = [
   "Espèce",
   "Profession",
   "Traits",
+  "Origine",
   "Morale",
   "Identité",
   "Dossier final"

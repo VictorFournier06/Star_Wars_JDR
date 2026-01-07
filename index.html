@@ -6,7 +6,7 @@
   <title>DATAPAD — Création de personnage</title>
   
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/main.css?v=20260106i" />
+  <link rel="stylesheet" href="./css/main.css?v=20260106j" />
 </head>
 
 <body>
@@ -59,7 +59,7 @@
         <div class="headline">
           <h2>1 — Espèce</h2>
         </div>
-        <p class="hint">Tu choisis un profil culturel et physiologique. <strong>Survole l'image</strong> pour voir la description détaillée. Les détails mécaniques apparaissent dans le dossier final.</p>
+        <p class="hint">Tu choisis un profil culturel et physiologique. <strong>Survole l'image</strong> pour voir la description détaillée.</p>
         <div class="panel" id="speciesList"></div>
       </section>
 
@@ -89,10 +89,32 @@
         </div>
       </section>
 
-      <!-- Page 4: Morale -->
+      <!-- Page 4: Origine -->
       <section class="page" data-page="3">
         <div class="headline">
-          <h2>4 — Morale</h2>
+          <h2>4 — Origine</h2>
+          <span class="chip amber">Galaxie</span>
+        </div>
+        <p class="hint">D'où viens-tu ? <strong>Clique sur une planète</strong> pour la sélectionner. <strong>Survole</strong> pour voir les détails.</p>
+        
+        <div class="galaxy-container">
+          <div class="galaxy-wrapper">
+            <div class="galaxy-plane">
+              <img src="./assets/galaxy.png" alt="Galaxie" class="galaxy-image" />
+              <svg class="galaxy-lines" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+            </div>
+            <!-- Nodes layer with static perspective, positions animated via JS -->
+            <div class="galaxy-nodes-layer">
+              <div class="galaxy-nodes" id="galaxyNodes"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 5: Morale -->
+      <section class="page" data-page="4">
+        <div class="headline">
+          <h2>5 — Morale</h2>
           <span class="chip amber">Leviers MJ</span>
         </div>
         <p class="hint">Trois choix rapides qui définissent ta boussole morale. Pas de jugement : ce sont des <b>outils narratifs</b> pour le MJ.</p>
@@ -128,10 +150,10 @@
         </div>
       </section>
 
-      <!-- Page 5: Identité -->
-      <section class="page" data-page="4">
+      <!-- Page 6: Identité -->
+      <section class="page" data-page="5">
         <div class="headline">
-          <h2>5 — Identité</h2>
+          <h2>6 — Identité</h2>
           <span class="chip amber">Dossier</span>
         </div>
         <p class="hint">Tu verrouilles l'essentiel. Pas de roman : une identité jouable en 30 secondes.</p>
@@ -184,10 +206,10 @@
         </div>
       </section>
 
-      <!-- Page 6: Dossier final -->
-      <section class="page" data-page="5" id="finalPage">
+      <!-- Page 7: Dossier final -->
+      <section class="page" data-page="6" id="finalPage">
         <div class="headline">
-          <h2>6 — Dossier final</h2>
+          <h2>7 — Dossier final</h2>
           <span class="chip" id="statusChip">En cours</span>
         </div>
         <p class="hint">Cette page révèle les informations mécaniques. Si tes <b>points restants ≥ 0</b>, ton personnage est jouable.</p>
@@ -242,10 +264,10 @@
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="./js/data.js?v=20260106f"></script>
-  <script src="./js/utils.js?v=20260106f"></script>
-  <script src="./js/tooltip.js?v=20260106f"></script>
-  <script src="./js/effects.js?v=20260106f"></script>
-  <script src="./js/app.js?v=20260106f"></script>
+  <script src="./js/data.js?v=20260106j"></script>
+  <script src="./js/utils.js?v=20260106j"></script>
+  <script src="./js/tooltip.js?v=20260106j"></script>
+  <script src="./js/effects.js?v=20260106j"></script>
+  <script src="./js/app.js?v=20260106j"></script>
 </body>
 </html>

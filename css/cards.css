@@ -270,6 +270,515 @@
 }
 
 /* --------------------------------------------------------------------------
+   GALAXY MAP (ORIGINE)
+   Tilted, rotating galaxy with planet nodes
+   -------------------------------------------------------------------------- */
+.galaxy-container {
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  min-height: 500px;
+  scale: 1.1;
+}
+
+.galaxy-wrapper {
+  position: relative;
+  width: 100%;
+  height: 750px;
+}
+
+.galaxy-plane {
+  top: -180px;
+  position: relative;
+  width: 120%;
+  margin-left: -10%;
+  aspect-ratio: 1;
+  transform-style: preserve-3d;
+  transform: rotateX(55deg);
+  animation: galaxy-rotate 240s linear infinite;
+}
+
+@keyframes galaxy-rotate {
+  from { transform: rotateX(55deg) rotateZ(0deg); }
+  to { transform: rotateX(55deg) rotateZ(360deg); }
+}
+
+.galaxy-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  opacity: 0.6;
+  filter: saturate(0.7) contrast(1.1);
+  pointer-events: none;
+}
+
+/* SVG layer for hyperspace lines */
+.galaxy-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.galaxy-lines line {
+  stroke: var(--accent);
+  stroke-width: 0.3;
+  stroke-opacity: 0.4;
+  stroke-linecap: round;
+}
+
+/* Static nodes layer - same perspective, positions animated via JS */
+.galaxy-nodes-layer {
+  position: absolute;
+  top: -180px;
+  left: 0;
+  width: 120%;
+  margin-left: -10%;
+  aspect-ratio: 1;
+  transform: rotateX(55deg);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Container for planet nodes */
+.galaxy-nodes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+/* Individual planet node - positions updated by JS animation */
+.planet-node {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  margin-left: -16px;
+  margin-top: -16px;
+  cursor: pointer;
+  z-index: 3;
+  /* GPU acceleration for smooth movement */
+  will-change: left, top;
+  transform: translateZ(0);
+}
+
+.planet-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  margin-top: -7px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 8px rgba(255, 255, 255, 0.6),
+    0 0 16px rgba(255, 255, 255, 0.3);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+  backface-visibility: hidden;
+}
+
+.planet-node:hover .planet-dot {
+  background: var(--accent);
+  box-shadow: 
+    0 0 12px var(--accent),
+    0 0 24px rgba(242, 193, 78, 0.6),
+    0 0 40px rgba(242, 193, 78, 0.3);
+}
+
+.planet-node.selected .planet-dot {
+  background: #4ade80;
+  box-shadow: 
+    0 0 12px #4ade80,
+    0 0 24px rgba(74, 222, 128, 0.6),
+    0 0 40px rgba(74, 222, 128, 0.3);
+}
+
+/* Planet name label - optimized for smooth animation */
+.planet-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateZ(0);
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--text-muted);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.85;
+  pointer-events: none;
+  text-shadow: 0 0 6px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7);
+  transition: color 0.2s ease, opacity 0.2s ease;
+  /* Anti-flickering optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.planet-node:hover .planet-label {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.planet-node.selected .planet-label {
+  opacity: 1;
+  color: #4ade80;
+}
+
+/* Station nodes (different style - diamond shape) */
+.planet-node.station .planet-dot {
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+
+.planet-node.station:hover .planet-dot {
+  background: var(--accent);
+  transform: rotate(45deg);
+}
+
+.planet-node.station.selected .planet-dot {
+  background: #4ade80;
+  transform: rotate(45deg);
+}
+
+/* Pulse effect on hover */
+.planet-node::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin-left: -16px;
+  margin-top: -16px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.planet-node:hover::before {
+  opacity: 0.5;
+  animation: planet-pulse 1.5s ease-out infinite;
+}
+
+@keyframes planet-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Selected planet indicator at bottom */
+.selected-planet-display {
+  text-align: center;
+  margin-top: 20px;
+  padding: 12px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.selected-planet-display .planet-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.selected-planet-display .planet-region {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Planet Tooltip */
+.planet-tooltip {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.planet-tooltip-panel {
+  width: 520px;
+  max-width: 95vw;
+  background: linear-gradient(135deg, rgba(20, 25, 30, 0.98), rgba(10, 15, 20, 0.99));
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  box-shadow: 
+    0 0 40px rgba(0, 0, 0, 0.9),
+    0 0 20px rgba(242, 193, 78, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* Banner image with title overlay */
+.planet-tooltip-banner {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  overflow: hidden;
+}
+
+.planet-tooltip-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.7);
+}
+
+.planet-tooltip-header-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 14px 20px;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+}
+
+.planet-tooltip-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+.planet-tooltip-region {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.planet-tooltip-body {
+  padding: 20px;
+}
+
+/* Stats row with hexes and planet view */
+.planet-tooltip-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Planet view (circular planet image with gradient fade) */
+.planet-tooltip-planet-view {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.planet-tooltip-planet-view img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  mask-image: radial-gradient(
+  circle,
+  white 48.0%,
+  rgba(255,255,255,0.83) 52.6%,
+  rgba(255,255,255,0.69) 57.2%,
+  rgba(255,255,255,0.31) 61.8%,
+  rgba(255,255,255,0.17) 66.4%,
+  transparent 71.0%
+);
+
+-webkit-mask-image: radial-gradient(
+  circle,
+  white 48.0%,
+  rgba(255,255,255,0.83) 52.6%,
+  rgba(255,255,255,0.69) 57.2%,
+  rgba(255,255,255,0.31) 61.8%,
+  rgba(255,255,255,0.17) 66.4%,
+  transparent 71.0%
+);
+}
+
+/* Digital-styled hexagonal stat boxes - regular hexagon (pointy top) */
+.planet-stat-hex {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 110px;
+  height: 127px; /* Regular hexagon pointy-top: height = width * 1.1547 */
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  padding: 14px 10px;
+  transition: all 0.2s ease;
+}
+
+.planet-stat-hex .hex-content {
+  text-align: center;
+  z-index: 1;
+}
+
+.planet-stat-hex .stat-box-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-family: var(--title);
+}
+
+.planet-stat-hex .stat-box-value {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* Climate box - warm orange/red theme (morale-style gradient) */
+.planet-stat-climat {
+  background: linear-gradient(180deg, rgba(255, 120, 50, 0.20) 0%, rgba(255, 80, 50, 0.08) 100%);
+}
+
+.planet-stat-climat:hover {
+  background: linear-gradient(180deg, rgba(255, 120, 50, 0.30) 0%, rgba(255, 80, 50, 0.12) 100%);
+}
+
+.planet-stat-climat .stat-box-label {
+  color: #ff9966;
+}
+
+.planet-stat-climat .stat-box-value {
+  color: #ffddcc;
+}
+
+/* Population box - blue/cyan theme (morale-style gradient) */
+.planet-stat-population {
+  background: linear-gradient(180deg, rgba(80, 180, 255, 0.20) 0%, rgba(50, 150, 255, 0.08) 100%);
+}
+
+.planet-stat-population:hover {
+  background: linear-gradient(180deg, rgba(80, 180, 255, 0.30) 0%, rgba(50, 150, 255, 0.12) 100%);
+}
+
+.planet-stat-population .stat-box-label {
+  color: #66ccff;
+}
+
+.planet-stat-population .stat-box-value {
+  color: #cceeFF;
+}
+
+/* Terrain box - green/earth theme (morale-style gradient) */
+.planet-stat-terrain {
+  background: linear-gradient(180deg, rgba(100, 200, 100, 0.20) 0%, rgba(80, 180, 80, 0.08) 100%);
+}
+
+.planet-stat-terrain:hover {
+  background: linear-gradient(180deg, rgba(100, 200, 100, 0.30) 0%, rgba(80, 180, 80, 0.12) 100%);
+}
+
+.planet-stat-terrain .stat-box-label {
+  color: #88dd88;
+}
+
+.planet-stat-terrain .stat-box-value {
+  color: #ccffcc;
+}
+
+.planet-stat-terrain.full-width {
+  width: 50%;
+  height: 58px;
+  margin: 0 auto 16px auto;
+  clip-path: polygon(8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
+}
+
+.planet-tooltip-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  border-top: 1px solid rgba(242, 193, 78, 0.15);
+  padding-top: 14px;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .galaxy-container {
+    min-height: 350px;
+    padding: 10px;
+  }
+  
+  .galaxy-plane {
+    transform: rotateX(45deg);
+  }
+  
+  .galaxy-nodes-layer {
+    transform: rotateX(45deg);
+  }
+  
+  @keyframes galaxy-rotate {
+    from { transform: rotateX(45deg) rotateZ(0deg); }
+    to { transform: rotateX(45deg) rotateZ(360deg); }
+  }
+  
+  .planet-node {
+    width: 24px;
+    height: 24px;
+    margin-left: -12px;
+    margin-top: -12px;
+  }
+  
+  .planet-dot {
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
+    margin-top: -5px;
+  }
+  
+  .planet-label {
+    font-size: 7px;
+  }
+  
+  .planet-tooltip-panel {
+    width: 300px;
+  }
+  
+  .planet-stat-hex {
+    width: 80px;
+    height: 69px;
+  }
+  
+  .planet-tooltip-planet-view {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+/* --------------------------------------------------------------------------
    MORALE SYSTEM
    -------------------------------------------------------------------------- */
 .morale-panel {
