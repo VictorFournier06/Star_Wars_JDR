@@ -150,10 +150,53 @@
         </div>
       </section>
 
-      <!-- Page 6: Identité -->
+      <!-- Page 6: Allégences -->
       <section class="page" data-page="5">
         <div class="headline">
-          <h2>6 — Identité</h2>
+          <h2>6 — Allégences</h2>
+          <span class="chip amber">Réputation</span>
+        </div>
+        <p class="hint">Clique sur des cartes pour définir ton passé. Chaque carte modifie ta réputation auprès des factions.</p>
+        
+        <div class="allegences-layout">
+          <!-- Left: Draft area -->
+          <div class="draft-area">
+            <div class="panel draft-panel">
+              <div class="draft-header">
+                <div class="draft-title">
+                  <span class="title-text">Cartes disponibles</span>
+                </div>
+                <div class="draft-actions">
+                  <button class="btn" id="restartDraftBtn">Recommencer</button>
+                </div>
+              </div>
+              <div class="draft-pack" id="draftPack"></div>
+            </div>
+            
+            <!-- Hand (picked cards) -->
+            <div class="panel hand-panel">
+              <div class="hand-header">
+                <span class="hand-title">Cartes choisies</span>
+                <span class="hand-hint">Clique sur une carte pour la retirer.</span>
+              </div>
+              <div class="draft-hand" id="draftHand"></div>
+            </div>
+          </div>
+          
+          <!-- Right: Faction gauges -->
+          <div class="factions-sidebar">
+            <div class="panel factions-panel">
+              <div class="factions-title">Factions</div>
+              <div class="factions-grid" id="factionsGrid"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 7: Identité -->
+      <section class="page" data-page="6">
+        <div class="headline">
+          <h2>7 — Identité</h2>
           <span class="chip amber">Dossier</span>
         </div>
         <p class="hint">Tu verrouilles l'essentiel. Pas de roman : une identité jouable en 30 secondes.</p>
@@ -206,10 +249,10 @@
         </div>
       </section>
 
-      <!-- Page 7: Dossier final -->
-      <section class="page" data-page="6" id="finalPage">
+      <!-- Page 8: Dossier final -->
+      <section class="page" data-page="7" id="finalPage">
         <div class="headline">
-          <h2>7 — Dossier final</h2>
+          <h2>8 — Dossier final</h2>
           <span class="chip" id="statusChip">En cours</span>
         </div>
         <p class="hint">Cette page révèle les informations mécaniques. Si tes <b>points restants ≥ 0</b>, ton personnage est jouable.</p>

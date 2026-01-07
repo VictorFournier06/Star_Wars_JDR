@@ -21,7 +21,7 @@
   border-radius: 22px;
   background: linear-gradient(180deg, rgba(10, 19, 38, 0.78), rgba(11, 16, 32, 0.58));
   box-shadow: var(--shadow);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   min-height: 64vh;
 }
@@ -58,6 +58,7 @@
 .page.active {
   display: block;
   animation: pageIn 0.18s ease-out;
+  overflow: visible;
 }
 
 @keyframes pageIn {

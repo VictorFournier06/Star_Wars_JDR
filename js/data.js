@@ -1703,6 +1703,7 @@ const PAGE_NAMES = [
   "Traits",
   "Origine",
   "Morale",
+  "Allégences",
   "Identité",
   "Dossier final"
 ];
@@ -1762,7 +1763,347 @@ const STATS = [
 ];
 
 // =============================================================================
+// ALLEGENCES - FACTIONS (organized by category)
+// =============================================================================
+const FACTION_SECTIONS = [
+  {
+    id: 'superpowers',
+    name: 'Superpuissances',
+    factions: [
+      { id: 'republic', name: 'République Galactique', desc: 'Gouvernement démocratique millénaire dirigé par le Sénat Galactique depuis Coruscant. Affaiblie par le Traité de Coruscant, elle lutte pour maintenir l\'unité de ses mondes membres face à la corruption politique et aux pressions impériales. Son armée et sa flotte dépendent de volontaires et de contractors privés.', image: 'republic.png' },
+      { id: 'empire', name: 'Empire Sith', desc: 'Puissance militariste resurgie de l\'exil, gouvernée par le mystérieux Empereur Sith et son Dark Council de douze Seigneurs Sith. Dromund Kaas est sa capitale secrète. La société impériale est rigidement hiérarchisée : Sith au sommet, puis militaires, citoyens, esclaves. Les Moffs commandent les secteurs tandis que les Sith se livrent à leurs intrigues.', image: 'empire.png' },
+    ]
+  },
+  {
+    id: 'spyagencies',
+    name: 'Agences de Renseignement',
+    factions: [
+      { id: 'sis', name: 'SIS (Strategic Information Service)', desc: 'Service de renseignement de la République, né de la Bibliothèque du Sénat et réorganisé pendant la Grande Guerre Galactique. Opère des agents de terrain, des analystes et des opérations déniables à travers la galaxie. Travaille en liaison étroite avec l\'Ordre Jedi et le Commandement Militaire. Rivalise constamment avec le Renseignement Impérial.', image: 'sis.png' },
+      { id: 'imperial_intel', name: 'Renseignement Impérial', desc: 'Organisation d\'espionnage la plus redoutée de la galaxie, opérant depuis la Citadelle Impériale sur Dromund Kaas. Ses Agents Cipher excellent en infiltration, assassinat et manipulation. Les Watchers analysent les données, les Minders gèrent la sécurité interne. Répond au Ministre du Renseignement qui siège au Dark Council. A orchestré la montée de Mandalore le Moindre.', image: 'imperial_intel.png' },
+    ]
+  },
+  {
+    id: 'neutral',
+    name: 'Blocs Neutres',
+    factions: [
+      { id: 'hutt', name: 'Cartel Hutt', desc: 'Les Hutts contrôlent un vaste empire criminel depuis Nal Hutta et ses lunes. Officiellement neutres dans le conflit galactique, chaque kajidic (clan) vend son influence au plus offrant. Leur espace sert de zone tampon et de marché noir. Contrebande, esclavage, jeu : tout a un prix sur Nar Shaddaa.', image: 'hutt.png' },
+      { id: 'chiss', name: 'Ascendance Chiss', desc: 'Civilisation avancée des Régions Inconnues, les Chiss sont des stratèges méthodiques à la peau bleue. Alliés pragmatiques de l\'Empire Sith mais gardant jalousement leur autonomie. Leur société méritocratique produit des officiers exceptionnels. Csilla est leur monde glacé d\'origine.', image: 'chiss.png' },
+      { id: 'czerka', name: 'Czerka Corporation', desc: 'Méga-corporation vieille de milliers d\'années, spécialisée dans l\'armement, la technologie et l\'exploitation minière. Moralement flexible, elle vend à quiconque paie. Son histoire est entachée d\'esclavage et d\'expériences illégales. Possède des installations secrètes à travers la galaxie.', image: 'czerka.png' },
+    ]
+  },
+  {
+    id: 'underworld',
+    name: 'Monde Souterrain',
+    factions: [
+      { id: 'exchange', name: 'L\'Échange', desc: 'Syndicat du crime galactique né il y a des siècles. Spécialisé dans la contrebande, l\'extorsion et le trafic d\'esclaves. En guerre froide permanente contre le Cartel Hutt pour le contrôle des routes commerciales. Cherche à s\'étendre en territoire impérial.', image: 'exchange.png' },
+      { id: 'blacksun', name: 'Soleil Noir', desc: 'Organisation criminelle en pleine ascension, particulièrement influente sur Coruscant depuis le Sac. Contrôle des quartiers entiers des niveaux inférieurs. Spécialisé dans la protection, le jeu et les assassinats discrets. Rivalise avec l\'Échange.', image: 'blacksun.png' },
+      { id: 'bountyguild', name: 'Guilde des Chasseurs de Primes', desc: 'Fédération régulant les chasseurs de primes indépendants. Garantit les contrats, établit les codes professionnels et maintient une neutralité stricte. La Grande Chasse est leur compétition légendaire. Travaille pour tous les camps.', image: 'bountyguild.png' },
+      { id: 'mandal', name: 'Mandaloriens', desc: 'Culture guerrière dispersée en clans nomades. Mandalore le Vindicatif les a unis comme mercenaires de l\'Empire. Leur code d\'honneur et leur armure beskar sont légendaires. Certains clans restent indépendants, vendant leurs services au plus offrant.', image: 'mandal.png' },
+    ]
+  },
+  {
+    id: 'proxy',
+    name: 'Théâtres de Proxy',
+    factions: [
+      { id: 'organa', name: 'Maison Organa', desc: 'Maison noble d\'Alderaan, championne des valeurs républicaines et de la paix. Alliée traditionnelle du Sénat, elle s\'oppose aux ambitions impériales de la Maison Thul. Prône la diplomatie mais n\'hésite pas à défendre ses intérêts par les armes.', image: 'organa.png' },
+      { id: 'thul', name: 'Maison Thul', desc: 'Maison noble exilée d\'Alderaan revenue grâce au soutien impérial. Ambitieuse et pragmatique, elle cherche à renverser l\'ordre établi pour s\'emparer du trône. Ses liens avec l\'Empire en font une menace pour la neutralité d\'Alderaan.', image: 'thul.png' },
+      { id: 'ulgo', name: 'Maison Ulgo', desc: 'Maison militariste ayant tenté de s\'emparer du trône d\'Alderaan par la force. Dirigée par un général qui s\'est proclamé roi, elle combat toutes les autres maisons. Indépendante des deux superpuissances mais isolée.', image: 'ulgo.png' },
+    ]
+  },
+  {
+    id: 'force',
+    name: 'Ordres de la Force',
+    factions: [
+      { id: 'jedi', name: 'Ordre Jedi', desc: 'Gardiens de la paix depuis des millénaires, les Jedi servent la République depuis leur nouveau Temple sur Tython. Affaiblis par le Sac de Coruscant, ils reconstruisent leurs rangs tout en luttant contre la menace Sith. Leurs Consulaires négocient, leurs Gardiens combattent, leurs Sentinelles enquêtent.', image: 'jedi.png' },
+      { id: 'sith', name: 'Ordre Sith', desc: 'Adeptes du Côté Obscur, les Sith dirigent l\'Empire depuis Korriban et Dromund Kaas. Leur philosophie de pouvoir par le conflit engendre conspirations et assassinats constants. Les Inquisiteurs manipulent, les Guerriers conquièrent. Le Dark Council règne sous l\'Empereur immortel.', image: 'sith.png' },
+    ]
+  },
+  {
+    id: 'secret',
+    name: 'Sociétés Secrètes',
+    factions: [
+      { id: 'revanites', name: 'Ordre de Revan', desc: 'Culte secret vénérant Revan, le Seigneur Sith devenu Jedi puis renégat. Ses membres, infiltrés dans l\'Empire, croient en l\'équilibre entre Lumière et Ténèbres. Ils attendent le retour de leur prophète pour transformer la galaxie.', image: 'revanites.png' },
+      { id: 'starcabal', name: 'Cabale Stellaire', desc: 'Conspiration millénaire visant à éliminer les utilisateurs de la Force de la politique galactique. Composée de non-sensibles influents, elle manipule le conflit République-Empire pour affaiblir Jedi et Sith. Le Codex Noir contient leurs secrets.', image: 'starcabal.png' },
+      { id: 'genoharadan', name: 'GenoHaradan', desc: 'Guilde d\'assassins légendaire opérant dans l\'ombre depuis des siècles. Ses membres éliminent ceux qu\'ils jugent dangereux pour la stabilité galactique. Leurs contrats sont absolus, leurs méthodes parfaites.', image: 'genoharadan.png' },
+      { id: 'dreadmasters', name: 'Maîtres de l\'Effroi', desc: 'Six Seigneurs Sith maîtrisant la guerre psychologique et la terreur à l\'échelle planétaire. Emprisonnés puis libérés, ils poursuivent leurs propres objectifs. Leur pouvoir collectif peut briser des armées par la peur seule.', image: 'dreadmasters.png' },
+    ]
+  },
+];
+
+// Flatten factions for easy lookup
+const FACTIONS = FACTION_SECTIONS.flatMap(section => 
+  section.factions.map(f => ({ ...f, section: section.id }))
+);
+
+// =============================================================================
+// ALLEGENCES - DRAFT CARDS (Espionage & Cold War themed)
+// =============================================================================
+const DRAFT_CARDS = [
+  // --- ESPIONAGE / COLD WAR INCIDENTS ---
+  {
+    id: 'burned-sis-safehouse',
+    title: 'Planque SIS Brûlée',
+    tags: ['Espionnage', 'Évasion'],
+    text: 'Tu as échappé à un raid, mais la planque a été incendiée derrière toi.',
+    effects: { imperial_intel: 23, empire: 14, sis: -28, republic: -17 },
+    image: 'coruscant-lower.jpg',
+  },
+  {
+    id: 'dead-drop-network',
+    title: 'Réseau de Boîtes Mortes',
+    tags: ['Espionnage', 'Logistique'],
+    text: 'Tu as fait circuler des codes via des dockers, des chanteurs de chorale et une chapelle droïde. Trois mondes, une semaine.',
+    effects: { sis: 27, republic: 13, imperial_intel: -22, empire: -11, hutt: -8 },
+    image: 'nar-shaddaa.jpg',
+  },
+  {
+    id: 'false-flag-shipment',
+    title: 'Livraison Sous Faux Pavillon',
+    tags: ['Manipulation', 'Trahison'],
+    text: 'Tu as transporté des fournitures qui ont fait accuser un monde neutre de "trahison" sans le savoir.',
+    effects: { starcabal: 26, republic: -14, empire: -13, sis: -9, imperial_intel: -8 },
+    image: 'smuggler-ship.jpg',
+  },
+  {
+    id: 'extracted-defector',
+    title: 'Extraction de Transfuge',
+    tags: ['Espionnage', 'Infiltration'],
+    text: 'Tu as fait sortir un analyste de niveau intermédiaire sous trois couches de mensonges.',
+    effects: { sis: 24, republic: 11, imperial_intel: -26, empire: -14, chiss: -9 },
+    image: 'imperial-agent.jpg',
+  },
+  {
+    id: 'you-were-turned',
+    title: 'Tu As Été "Retourné"',
+    tags: ['Chantage', 'Double-jeu'],
+    text: 'Quelqu\'un t\'a fait chanter pour alimenter un camp avec juste assez de vérité.',
+    effects: { imperial_intel: 19, starcabal: 11, blacksun: 8, sis: -21, republic: -7 },
+    image: 'keeper.jpg',
+  },
+  {
+    id: 'keepers-cleanup',
+    title: 'Nettoyage du Gardien',
+    tags: ['Témoin', 'Renseignement'],
+    text: 'Tu as vu une équipe cipher effacer des preuves avec un calme chirurgical.',
+    effects: { imperial_intel: 28, empire: 11, genoharadan: 9, sis: -16, republic: -8 },
+    image: 'keeper.jpg',
+  },
+  
+  // --- UNDERWORLD JOBS ---
+  {
+    id: 'hutt-debt-blood',
+    title: 'Dette Hutt Payée en Sang',
+    tags: ['Crime', 'Exécution'],
+    text: 'Tu as éliminé un comptable rival. Le Hutt a appelé ça "les affaires".',
+    effects: { hutt: 29, blacksun: -17, exchange: -13, republic: -9, jedi: -6 },
+    image: 'hutt-cartel.jpg',
+  },
+  {
+    id: 'exchange-audit',
+    title: 'Audit de l\'Échange',
+    tags: ['Crime', 'Survie'],
+    text: 'Tu as été audité sous la menace d\'un blaster... et tu es reparti employé.',
+    effects: { exchange: 31, hutt: -24, imperial_intel: -11, sis: -8, bountyguild: -6 },
+    image: 'exchange.png',
+  },
+  {
+    id: 'blacksun-protection',
+    title: 'Protection Soleil Noir',
+    tags: ['Crime', 'Racket'],
+    text: 'Tu as fait du recouvrement dans les bas-fonds pendant le chaos post-sac.',
+    effects: { blacksun: 28, exchange: 7, republic: -19, sis: -14, jedi: -8 },
+    image: 'blacksun.jpg',
+  },
+  {
+    id: 'hutt-exchange-truce',
+    title: 'Trêve Hutts ↔ Échange',
+    tags: ['Diplomatie', 'Crime'],
+    text: 'Une nuit seulement. Tout le monde a fait semblant que la paix était possible.',
+    effects: { hutt: 18, exchange: 17, blacksun: -16, republic: -11, empire: -9, bountyguild: 6 },
+    image: 'nar-shaddaa.jpg',
+  },
+  {
+    id: 'live-capture-contract',
+    title: 'Contrat : Capture Vivante',
+    tags: ['Chasse', 'Honneur'],
+    text: 'Tu as ramené une cible vivante alors que tout le monde s\'attendait à un cadavre.',
+    effects: { bountyguild: 26, republic: 11, empire: 9, blacksun: -13, genoharadan: -8 },
+    image: 'bounty-hunter.jpg',
+  },
+  {
+    id: 'refused-hutt-contract',
+    title: 'Contrat Hutt Refusé',
+    tags: ['Défi', 'Réputation'],
+    text: 'Tu as dit "non" à un kajidic. Ce mot voyage.',
+    effects: { hutt: -31, exchange: 14, blacksun: 11, republic: 7, bountyguild: -6 },
+    image: 'hutt-cartel.jpg',
+  },
+  {
+    id: 'genoharadan-invitation',
+    title: 'Invitation GenoHaradan',
+    tags: ['Assassinat', 'Mystère'],
+    text: 'Un contrat est arrivé sans signature. Tu as compris quand même.',
+    effects: { genoharadan: 32, sis: -17, imperial_intel: -14, jedi: -9, bountyguild: -7 },
+    image: 'genoharadan.png',
+  },
+  
+  // --- CORPORATE / PROXY WARFARE ---
+  {
+    id: 'czerka-lab-evac',
+    title: 'Évacuation Labo Czerka',
+    tags: ['Corporate', 'Extraction'],
+    text: 'Tu as extrait des scientifiques et des données pendant que l\'installation se verrouillait.',
+    effects: { czerka: 27, sis: 13, imperial_intel: 11, republic: -12, empire: -9 },
+    image: 'czerka.png',
+  },
+  {
+    id: 'whistleblown-safety',
+    title: 'Fuite sur la Sécurité',
+    tags: ['Lanceur d\'alerte', 'Justice'],
+    text: 'Tu as fait fuiter la preuve que Czerka enterrait des victimes.',
+    effects: { republic: 21, sis: 14, jedi: 8, czerka: -33, hutt: -11 },
+    image: 'czerka.png',
+  },
+  {
+    id: 'prototype-weapons-offledger',
+    title: 'Armes Prototypes Hors Livres',
+    tags: ['Contrebande', 'Corporate'],
+    text: 'Tu as été payé deux fois : une fois en crédits, une fois en faveurs futures.',
+    effects: { czerka: 24, hutt: 16, republic: -18, empire: -16, sis: -7 },
+    image: 'czerka.png',
+  },
+  
+  // --- ALDERAAN: THE POLITE WAR ---
+  {
+    id: 'organa-protected',
+    title: 'Protégé par Organa',
+    tags: ['Noblesse', 'Protection'],
+    text: 'Tu as été exfiltré d\'un gala en pleine tentative d\'assassinat.',
+    effects: { organa: 29, republic: 14, thul: -27, imperial_intel: -13, ulgo: -8 },
+    image: 'alderaan.jpg',
+  },
+  {
+    id: 'thul-payroll',
+    title: 'Salaire Maison Thul',
+    tags: ['Noblesse', 'Logistique'],
+    text: 'Tu as déplacé des ressources sous une "charte familiale".',
+    effects: { thul: 28, empire: 13, organa: -23, ulgo: -18, republic: -6 },
+    image: 'alderaan.jpg',
+  },
+  {
+    id: 'ulgo-line-held',
+    title: 'Ligne Ulgo Tenue',
+    tags: ['Combat', 'Défense'],
+    text: 'Tu as maintenu un passage ouvert assez longtemps pour que les civils fuient.',
+    effects: { ulgo: 31, mandal: 12, republic: 9, thul: -21, organa: -11 },
+    image: 'alderaan.jpg',
+  },
+  {
+    id: 'alderaan-summit-courier',
+    title: 'Courrier du Sommet d\'Alderaan',
+    tags: ['Diplomatie', 'Secrets'],
+    text: 'Tu as transporté des documents liés à un traité que plusieurs voulaient brûler.',
+    effects: { organa: 13, thul: 12, sis: 9, ulgo: -14, genoharadan: -8, imperial_intel: 7 },
+    image: 'alderaan.jpg',
+  },
+  
+  // --- MANDALORIAN & MILITARY ---
+  {
+    id: 'fought-beside-mandos',
+    title: 'Combat aux Côtés des Mandos',
+    tags: ['Combat', 'Honneur'],
+    text: 'Tu as gagné le respect en ne bronchant pas et en ne te vantant pas.',
+    effects: { mandal: 33, empire: 11, republic: -16, jedi: -12, sis: -7 },
+    image: 'mandalorians.jpg',
+  },
+  {
+    id: 'refused-mando-challenge',
+    title: 'Défi Mandalorien Refusé',
+    tags: ['Survie', 'Pragmatisme'],
+    text: 'Tu as choisi la survie plutôt que l\'honneur — et ils l\'ont remarqué.',
+    effects: { mandal: -27, hutt: 13, exchange: 9, blacksun: 8, bountyguild: -11 },
+    image: 'mandalorians.jpg',
+  },
+  {
+    id: 'sacking-aftermath',
+    title: 'Après le Sac de Coruscant',
+    tags: ['Survie', 'Chaos'],
+    text: 'Tu as fait du sauvetage/évacuation médicale pendant que les gangs consolidaient leur territoire.',
+    effects: { republic: 17, blacksun: 19, mandal: 11, sis: 8, empire: -14, jedi: -7 },
+    image: 'coruscant-sack.jpg',
+  },
+  
+  // --- CHISS / UNKNOWN REGIONS ---
+  {
+    id: 'chiss-escort-duty',
+    title: 'Escorte Chiss',
+    tags: ['Diplomatie', 'Protection'],
+    text: 'Tu as aidé à déplacer une délégation Chiss à travers l\'espace hostile.',
+    effects: { chiss: 28, empire: 14, imperial_intel: 11, republic: -16, sis: -9 },
+    image: 'chiss.jpg',
+  },
+  {
+    id: 'betrayed-chiss-compact',
+    title: 'Compact Chiss Trahi',
+    tags: ['Trahison', 'Information'],
+    text: 'Tu as vendu des données de navigation qui n\'auraient jamais dû quitter l\'Ascendance.',
+    effects: { chiss: -34, imperial_intel: 17, sis: 14, hutt: 11, empire: -12 },
+    image: 'chiss.jpg',
+  },
+  
+  // --- FORCE CULTS / CONSPIRACIES ---
+  {
+    id: 'sheltered-revanites',
+    title: 'Revanites Abrités',
+    tags: ['Culte', 'Clandestinité'],
+    text: 'Tu as caché une cellule assez longtemps pour qu\'ils disparaissent.',
+    effects: { revanites: 32, sith: -22, imperial_intel: -17, empire: -8 },
+    image: 'revan.png',
+  },
+  {
+    id: 'starcabal-message',
+    title: 'Message de la Cabale Stellaire',
+    tags: ['Conspiration', 'Mystère'],
+    text: 'Tu ne connaissais pas l\'expéditeur. Tu ne connaissais que les conséquences.',
+    effects: { starcabal: 31, sis: -16, imperial_intel: -14, jedi: -11, sith: -9 },
+    image: 'starcabal.png',
+  },
+  {
+    id: 'dread-whispers',
+    title: 'Murmures d\'Effroi',
+    tags: ['Horreur', 'Survie'],
+    text: 'Tu as été exposé au "travail de terreur" sur un monde-prison et tu as survécu.',
+    effects: { dreadmasters: 29, sith: 13, jedi: -17, republic: -11, revanites: -6 },
+    image: 'dreadmasters.jpg',
+  },
+  {
+    id: 'wrong-artifact-smuggled',
+    title: 'Le "Mauvais" Artefact',
+    tags: ['Force', 'Contrebande'],
+    text: 'Une relique a changé de mains ; trois factions ont paniqué en silence.',
+    effects: { sith: 22, revanites: 14, jedi: -21, sis: -13, imperial_intel: -9 },
+    image: 'korriban.jpg',
+  },
+  {
+    id: 'killed-unkillable-witness',
+    title: 'Témoin "Intuable" Éliminé',
+    tags: ['Assassinat', 'Secret'],
+    text: 'Quelqu\'un t\'a payé pour effacer une personne de l\'histoire, pas juste de la vie.',
+    effects: { genoharadan: 27, blacksun: 14, republic: -22, empire: -16, jedi: -8 },
+    image: 'genoharadan.png',
+  },
+];
+
+// Draft configuration
+const DRAFT_CONFIG = {
+  PACKS: 3,
+  PACK_SIZE: 5,
+  REROLLS: 2,
+  MAX_FACTION_VALUE: 100,
+};
+
+// =============================================================================
 // EXPORTS (for use with ES modules, if desired)
 // =============================================================================
 // If you want to use ES modules later, uncomment this:
-// export { SPECIES, PROFESSIONS, TRAITS, PAGE_NAMES, CAMP_OPTIONS, STATS };
+// export { SPECIES, PROFESSIONS, TRAITS, PAGE_NAMES, CAMP_OPTIONS, STATS, FACTIONS, DRAFT_CARDS, DRAFT_CONFIG };

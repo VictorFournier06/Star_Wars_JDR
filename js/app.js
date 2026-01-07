@@ -18,6 +18,11 @@ const state = {
   doctrineId: null,
   methodeId: null,
   lignesRouges: new Set(),
+  // Allégences (Draft)
+  draftPacks: [],
+  draftPicks: [], // Array of picked cards (one per pack slot, null if not picked)
+  draftRerolls: DRAFT_CONFIG?.REROLLS || 2,
+  factionValues: {}, // Computed faction reputation values
 };
 
 // =============================================================================
@@ -150,7 +155,7 @@ function goTo(i) {
   $('#prevBtn').disabled = state.page === 0;
   $('#nextBtn').disabled = state.page === PAGE_NAMES.length - 1;
 
-  if (state.page === 6) renderSummary();
+  if (state.page === 7) renderSummary();
   
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -417,7 +422,7 @@ function planetById(id) {
 // Galaxy rotation animation state
 let galaxyAnimationId = null;
 let galaxyStartTime = null;
-const GALAXY_ROTATION_DURATION = 240000; // 240s in ms
+const GALAXY_ROTATION_DURATION = 480000; // 480s in ms
 
 /**
  * Calculate rotated position around center (50%, 50%)
@@ -574,6 +579,7 @@ function renderOrigine() {
       state.origineId = planet.id;
       renderOrigine();
       setTotalUI();
+      AudioManager.playSelect();
     };
     
     node.addEventListener('click', (e) => {
@@ -737,6 +743,389 @@ function renderLignesRouges() {
 
     host.appendChild(option);
   });
+}
+
+// =============================================================================
+// ALLÉGENCES / DRAFT SYSTEM
+// =============================================================================
+
+function initDraft() {
+  const config = DRAFT_CONFIG || { PACKS: 3, PACK_SIZE: 5, REROLLS: 2, MAX_FACTION_VALUE: 50 };
+  
+  // Initialize picks as empty array if not already
+  if (!Array.isArray(state.draftPicks)) {
+    state.draftPicks = [];
+  }
+  
+  // Initialize faction values
+  if (Object.keys(state.factionValues).length === 0) {
+    FACTIONS.forEach(f => {
+      state.factionValues[f.id] = 0;
+    });
+  }
+}
+
+function generateAllPacks(numPacks, packSize) {
+  const allCards = [...DRAFT_CARDS];
+  const usedIds = new Set();
+  const packs = [];
+  
+  for (let p = 0; p < numPacks; p++) {
+    const pack = sampleCards(allCards, packSize, usedIds);
+    pack.forEach(card => usedIds.add(card.id));
+    packs.push(pack);
+  }
+  
+  return packs;
+}
+
+function sampleCards(pool, count, excludeIds) {
+  const available = pool.filter(c => !excludeIds.has(c.id));
+  const result = [];
+  const used = new Set();
+  
+  const max = Math.min(count, available.length);
+  while (result.length < max) {
+    const idx = Math.floor(Math.random() * available.length);
+    const card = available[idx];
+    if (!used.has(card.id)) {
+      used.add(card.id);
+      result.push(card);
+    }
+  }
+  
+  return result;
+}
+
+function getActivePackIndex() {
+  for (let i = 0; i < state.draftPicks.length; i++) {
+    if (!state.draftPicks[i]) return i;
+  }
+  return -1; // All packs picked
+}
+
+function computeFactionValues() {
+  const config = DRAFT_CONFIG || { MAX_FACTION_VALUE: 50 };
+  const values = {};
+  
+  FACTIONS.forEach(f => {
+    values[f.id] = 0;
+  });
+  
+  state.draftPicks.forEach(card => {
+    if (!card) return;
+    Object.entries(card.effects || {}).forEach(([factionId, amount]) => {
+      if (values.hasOwnProperty(factionId)) {
+        values[factionId] = Math.max(-config.MAX_FACTION_VALUE, 
+          Math.min(config.MAX_FACTION_VALUE, values[factionId] + amount));
+      }
+    });
+  });
+  
+  state.factionValues = values;
+  return values;
+}
+
+function renderDraft() {
+  initDraft();
+  
+  const packContainer = $('#draftPack');
+  const handContainer = $('#draftHand');
+  const factionsGrid = $('#factionsGrid');
+  
+  if (!packContainer || !handContainer || !factionsGrid) return;
+  
+  // Get picked card IDs for marking as picked
+  const pickedIds = new Set();
+  state.draftPicks.forEach(pick => {
+    if (pick) pickedIds.add(pick.id);
+  });
+  
+  // Render ALL cards (not just current pack)
+  packContainer.innerHTML = '';
+  
+  DRAFT_CARDS.forEach(card => {
+    const isPicked = pickedIds.has(card.id);
+    const cardEl = createDraftCardElement(card, false, isPicked ? null : () => pickCard(card));
+    if (isPicked) {
+      cardEl.classList.add('picked');
+    }
+    packContainer.appendChild(cardEl);
+  });
+  
+  // Render hand - click anywhere on card to remove
+  handContainer.innerHTML = '';
+  state.draftPicks.forEach((picked, i) => {
+    if (picked) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'hand-card';
+      
+      const cardEl = createDraftCardElement(picked, true, () => removePickAt(i));
+      wrapper.appendChild(cardEl);
+      
+      handContainer.appendChild(wrapper);
+    }
+  });
+  
+  // Render factions
+  renderFactions();
+}
+
+function createDraftCardElement(card, isMini = false, onClick = null) {
+  const el = document.createElement('div');
+  el.className = 'draft-card' + (isMini ? ' mini' : '');
+  
+  const hue = hashStringToHue(card.id);
+  
+  // Use card image if available, otherwise use procedural gradient
+  let artStyle;
+  if (card.image) {
+    artStyle = `
+      background-image: 
+        linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%),
+        url('assets/cards/${card.image}');
+      background-size: cover;
+      background-position: center;
+    `;
+  } else {
+    artStyle = `
+      background-image: 
+        radial-gradient(800px 300px at 20% 15%, hsla(${hue}, 70%, 55%, 0.35), transparent 60%),
+        radial-gradient(600px 300px at 80% 30%, hsla(${(hue + 30) % 360}, 80%, 50%, 0.25), transparent 55%),
+        radial-gradient(600px 300px at 60% 90%, hsla(${(hue + 180) % 360}, 70%, 55%, 0.20), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.55));
+    `;
+  }
+  
+  el.innerHTML = `
+    <div class="draft-card-art">
+      <div class="draft-card-art-bg" style="${artStyle}"></div>
+      <div class="draft-card-art-overlay"></div>
+      <div class="draft-card-corners">
+        <div class="draft-card-corner tl"></div>
+        <div class="draft-card-corner tr"></div>
+        <div class="draft-card-corner bl"></div>
+        <div class="draft-card-corner br"></div>
+      </div>
+      <div class="draft-card-rarity">${card.rarity || 'Commune'}</div>
+    </div>
+    <div class="draft-card-body">
+      <div class="draft-card-header">
+        <h4 class="draft-card-title">${card.title}</h4>
+      </div>
+      <p class="draft-card-text">${card.text}</p>
+      <div class="draft-card-tags">
+        ${(card.tags || []).map(t => `<span class="draft-card-tag">${t}</span>`).join('')}
+      </div>
+      ${!isMini ? `
+        <div class="draft-card-effects">
+          ${Object.entries(card.effects || {}).map(([fId, val]) => {
+            const faction = FACTIONS.find(f => f.id === fId);
+            const fName = faction ? faction.name : fId;
+            const sign = val >= 0 ? '+' : '';
+            const cls = val >= 0 ? 'positive' : 'negative';
+            return `
+              <div class="draft-card-effect">
+                <span class="draft-card-effect-faction">${fName}</span>
+                <span class="draft-card-effect-value ${cls}">${sign}${val}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      ` : ''}
+    </div>
+    <div class="draft-card-sheen"></div>
+  `;
+  
+  if (onClick) {
+    el.addEventListener('click', onClick);
+  }
+  
+  return el;
+}
+
+function hashStringToHue(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = (h * 31 + str.charCodeAt(i)) >>> 0;
+  }
+  return h % 360;
+}
+
+function pickCard(card) {
+  // Add card to picks array
+  state.draftPicks.push(card);
+  computeFactionValues();
+  renderDraft();
+  AudioManager.playSelect();
+}
+
+function removePickAt(index) {
+  // Remove card at index
+  state.draftPicks.splice(index, 1);
+  computeFactionValues();
+  renderDraft();
+  AudioManager.playSelect();
+}
+
+function rerollCurrentPack() {
+  if (state.draftRerolls <= 0) return;
+  
+  const activeIdx = getActivePackIndex();
+  if (activeIdx < 0) return;
+  
+  const config = DRAFT_CONFIG || { PACK_SIZE: 5 };
+  
+  // Get all used card IDs (from other packs and picks)
+  const usedIds = new Set();
+  state.draftPacks.forEach((pack, idx) => {
+    if (idx !== activeIdx) {
+      pack.forEach(c => usedIds.add(c.id));
+    }
+  });
+  state.draftPicks.forEach(pick => {
+    if (pick) usedIds.add(pick.id);
+  });
+  
+  // Generate new pack
+  const newPack = sampleCards(DRAFT_CARDS, config.PACK_SIZE, usedIds);
+  state.draftPacks[activeIdx] = newPack;
+  state.draftRerolls--;
+  
+  renderDraft();
+  AudioManager.playSelect();
+}
+
+function restartDraft() {
+  // Clear picks - all cards become available again
+  state.draftPicks = [];
+  
+  FACTIONS.forEach(f => {
+    state.factionValues[f.id] = 0;
+  });
+  
+  renderDraft();
+  AudioManager.playSelect();
+}
+
+function renderFactions() {
+  const grid = $('#factionsGrid');
+  if (!grid) return;
+  
+  grid.innerHTML = '';
+  
+  const config = DRAFT_CONFIG || { MAX_FACTION_VALUE: 100 };
+  const maxVal = config.MAX_FACTION_VALUE;
+  
+  // Render factions organized by sections
+  FACTION_SECTIONS.forEach(section => {
+    // Section header
+    const sectionDiv = document.createElement('div');
+    sectionDiv.className = 'faction-section';
+    
+    const sectionTitle = document.createElement('div');
+    sectionTitle.className = 'faction-section-title';
+    sectionTitle.textContent = section.name;
+    sectionDiv.appendChild(sectionTitle);
+    
+    const sectionGrid = document.createElement('div');
+    sectionGrid.className = 'faction-section-grid';
+    
+    section.factions.forEach(faction => {
+      const value = state.factionValues[faction.id] || 0;
+      const absVal = Math.abs(value);
+      const percent = Math.min(absVal / maxVal, 1);
+      
+      // Calculate SVG circle parameters
+      const radius = 35;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference * (1 - percent);
+      
+      let gaugeClass = 'neutral';
+      if (value > 0) gaugeClass = 'positive';
+      else if (value < 0) gaugeClass = 'negative';
+      
+      let valueClass = 'neutral';
+      if (value > 0) valueClass = 'positive';
+      else if (value < 0) valueClass = 'negative';
+      
+      const sign = value >= 0 ? '+' : '';
+      
+      const hex = document.createElement('div');
+      hex.className = 'faction-hex';
+      hex.dataset.factionId = faction.id;
+      
+      // For negative values, flip the SVG to make gauge go left
+      const svgClass = value < 0 ? 'faction-hex-svg negative-direction' : 'faction-hex-svg';
+      
+      hex.innerHTML = `
+        <svg class="${svgClass}" viewBox="0 0 100 100">
+          <circle class="faction-hex-bg" cx="50" cy="50" r="${radius}" />
+          <circle class="faction-hex-gauge ${gaugeClass}" cx="50" cy="50" r="${radius}" 
+                  stroke-dasharray="${circumference}" 
+                  stroke-dashoffset="${offset}" />
+        </svg>
+        <div class="faction-hex-inner">
+          <img class="faction-hex-img" src="assets/factions/${faction.image}" alt="${faction.name}" 
+               onerror="this.style.display='none'">
+        </div>
+        <span class="faction-hex-value ${valueClass}">${sign}${value}</span>
+      `;
+      
+      // Tooltip on hover
+      hex.addEventListener('mouseenter', () => showFactionTooltip(faction, hex));
+      hex.addEventListener('mouseleave', hideFactionTooltip);
+      
+      sectionGrid.appendChild(hex);
+    });
+    
+    sectionDiv.appendChild(sectionGrid);
+    grid.appendChild(sectionDiv);
+  });
+}
+
+// Faction tooltip
+let factionTooltipEl = null;
+
+function showFactionTooltip(faction, anchor) {
+  if (!factionTooltipEl) {
+    factionTooltipEl = document.createElement('div');
+    factionTooltipEl.className = 'faction-tooltip';
+    document.body.appendChild(factionTooltipEl);
+  }
+  
+  factionTooltipEl.innerHTML = `
+    <div class="faction-tooltip-panel">
+      <h4 class="faction-tooltip-name">${faction.name}</h4>
+      <p class="faction-tooltip-desc">${faction.desc}</p>
+    </div>
+  `;
+  
+  const rect = anchor.getBoundingClientRect();
+  const viewportHeight = window.innerHeight;
+  const isBottomHalf = rect.top > viewportHeight / 2;
+  
+  // Position tooltip - make visible briefly to measure height
+  factionTooltipEl.style.visibility = 'hidden';
+  factionTooltipEl.classList.add('visible');
+  const tooltipHeight = factionTooltipEl.offsetHeight;
+  factionTooltipEl.style.visibility = '';
+  
+  factionTooltipEl.style.left = `${rect.left - 80}px`;
+  
+  if (isBottomHalf) {
+    // Show above the element
+    factionTooltipEl.style.top = `${rect.top - tooltipHeight - 10}px`;
+  } else {
+    // Show below the element
+    factionTooltipEl.style.top = `${rect.bottom + 10}px`;
+  }
+}
+
+function hideFactionTooltip() {
+  if (factionTooltipEl) {
+    factionTooltipEl.classList.remove('visible');
+  }
 }
 
 function renderStats() {
@@ -1032,6 +1421,11 @@ function resetAll() {
   state.doctrineId = null;
   state.methodeId = null;
   state.lignesRouges.clear();
+  // Reset draft
+  state.draftPicks = [];
+  FACTIONS.forEach(f => {
+    state.factionValues[f.id] = 0;
+  });
   
   $('#traitSearch').value = '';
   $('#playerName').value = '';
@@ -1061,6 +1455,7 @@ function resetAll() {
   renderDoctrines();
   renderMethodes();
   renderLignesRouges();
+  renderDraft();
   setTotalUI();
 }
 
@@ -1140,6 +1535,8 @@ function init() {
   renderDoctrines();
   renderMethodes();
   renderLignesRouges();
+  // Allégences
+  renderDraft();
   setTotalUI();
 
   $('#prevBtn').addEventListener('click', () => goTo(state.page - 1));
@@ -1148,6 +1545,10 @@ function init() {
   $('#traitSearch').addEventListener('input', () => renderTraits($('#traitSearch').value));
   $('#saveBtn')?.addEventListener('click', downloadFinalPNG);
   $('#submitBtn')?.addEventListener('click', submitToGoogleSheets);
+  
+  // Draft buttons
+  $('#rerollPackBtn')?.addEventListener('click', rerollCurrentPack);
+  $('#restartDraftBtn')?.addEventListener('click', restartDraft);
   
   // Initialize custom dropdowns
   document.querySelectorAll('.custom-select').forEach(initCustomSelect);
