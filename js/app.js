@@ -879,13 +879,17 @@ function createDraftCardElement(card, isMini = false, onClick = null) {
   
   // Use card image if available, otherwise use procedural gradient
   let artStyle;
+  let extraClass = '';
+  const darkImages = ['Burnt.webp', 'hideout.webp', 'psychic.webp'];
   if (card.image) {
+    const brightnessFilter = darkImages.includes(card.image) ? 'brightness(0.9)' : 'brightness(0.6)';
     artStyle = `
       background-image: 
         linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%),
         url('assets/cards/${card.image}');
       background-size: cover;
-      background-position: center;
+      background-position: top center;
+      filter: ${brightnessFilter} saturate(0.8);
     `;
   } else {
     artStyle = `
@@ -1094,8 +1098,15 @@ function showFactionTooltip(faction, anchor) {
     document.body.appendChild(factionTooltipEl);
   }
   
+  const imgHtml = faction.image 
+    ? `<div class="faction-tooltip-img-wrapper">
+         <img class="faction-tooltip-img faction-img-${faction.id}" src="assets/factions/${faction.image}" alt="${faction.name}" onerror="this.parentElement.style.display='none'">
+       </div>`
+    : '';
+  
   factionTooltipEl.innerHTML = `
     <div class="faction-tooltip-panel">
+      ${imgHtml}
       <h4 class="faction-tooltip-name">${faction.name}</h4>
       <p class="faction-tooltip-desc">${faction.desc}</p>
     </div>
@@ -1216,6 +1227,31 @@ function renderSummary() {
   add('Méthodes', methode?.name);
   add('Lignes rouges', lignes.length ? lignes.join(', ') : '—');
 
+  // Allegiances summary - drafted cards and faction standings
+  if (state.draftPicks && state.draftPicks.length > 0) {
+    const cardTitles = state.draftPicks.map(c => c.title).join(', ');
+    add('Cartes d\'allégeance', cardTitles);
+    
+    // Show significant faction standings (positive allies, negative enemies)
+    const allies = [];
+    const enemies = [];
+    Object.entries(state.factionValues || {}).forEach(([factionId, value]) => {
+      const faction = FACTIONS.find(f => f.id === factionId);
+      if (faction && value >= 25) {
+        allies.push(`${faction.name} (+${value})`);
+      } else if (faction && value <= -25) {
+        enemies.push(`${faction.name} (${value})`);
+      }
+    });
+    
+    if (allies.length > 0) {
+      add('Alliés notables', allies.join(', '));
+    }
+    if (enemies.length > 0) {
+      add('Ennemis notables', enemies.join(', '));
+    }
+  }
+
   add('Points restants', String(totalPoints()));
 
   renderStats();
@@ -1272,7 +1308,16 @@ function buildSavePayload() {
       // Morale resolved
       doctrine: doctrine?.name || null,
       methode: methode?.name || null,
-      lignesRouges: lignes.map(l => l.name)
+      lignesRouges: lignes.map(l => l.name),
+      // Allegiances resolved
+      draftedCards: (state.draftPicks || []).map(c => ({ id: c.id, title: c.title })),
+      factionStandings: Object.entries(state.factionValues || {})
+        .filter(([_, v]) => v !== 0)
+        .map(([id, value]) => {
+          const faction = FACTIONS.find(f => f.id === id);
+          return { id, name: faction?.name || id, value };
+        })
+        .sort((a, b) => b.value - a.value)
     }
   };
 }

@@ -41,7 +41,7 @@
 
 /* Republic face - Blue holographic (front) */
 .logo-republic {
-  background-image: url('../assets/Republic_Emblem.svg');
+  background-image: url('../assets/factions/republic.svg');
   background-color: rgba(20, 40, 80, 0.8);
   border: 3px solid rgba(100, 180, 255, 0.7);
   box-shadow: 
@@ -54,7 +54,7 @@
 
 /* Sith face - Red holographic (back of coin) */
 .logo-sith {
-  background-image: url('../assets/Sith_Emblem.svg');
+  background-image: url('../assets/factions/Sith_Emblem.svg');
   background-color: rgba(80, 20, 20, 0.8);
   border: 3px solid rgba(255, 80, 80, 0.7);
   /* Rotate 180deg AND translate back to prevent z-fighting */
