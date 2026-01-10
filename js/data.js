@@ -1988,7 +1988,7 @@ const DRAFT_CARDS = [
     tags: ['Noblesse', 'Logistique'],
     text: 'Tu as fait passer des armes ou des fonds pour la Maison Thul sous couvert d\'une "affaire de famille". L\'Empire approuve ; Organa n\'oubliera pas.',
     effects: { thul: 28, empire: 13, organa: -23, ulgo: -18, republic: -6 },
-    image: 'innocent.png',
+    image: 'credits.jpeg',
   },
   {
     id: 'ulgo-line-held',
